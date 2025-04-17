@@ -9,7 +9,7 @@ use App\Models\Municipio;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse; // Importar JsonResponse
+use Illuminate\Http\JsonResponse;
 
 class ClienteController extends Controller
 {
@@ -38,7 +38,7 @@ class ClienteController extends Controller
 
     public function ver(): View
     {
-        $clientes = Cliente::with('municipio.estado.pais')->get();
+        $clientes = Cliente::with('municipio.estado.pais')->where('IsDelete', 0)->get(); // Filtra los no eliminados
         return view('clientes.ver', compact('clientes'));
     }
 
@@ -60,33 +60,32 @@ class ClienteController extends Controller
     }
 
     public function actualizar(Request $request, string $dni): RedirectResponse
-{
-    $cliente = Cliente::findOrFail($dni);
+    {
+        $cliente = Cliente::findOrFail($dni);
 
-    $request->validate([
-        'Dni' => [
-            'required',
-            'unique:clientes,Dni,' . $cliente->Dni . ',Dni', // Añadimos ',Dni' al final
-            'max:20'
-        ],
-        'Nombres' => 'required|max:50',
-        'Apellidos' => 'required|max:50',
-        'PrimerTelefono' => 'required|max:20',
-        'SegundoTelefono' => 'nullable|max:20',
-        'CodMunicipio' => 'nullable|exists:municipios,CodMunicipio',
-        'Direccion' => 'required|max:200',
-    ]);
+        $request->validate([
+            'Dni' => [
+                'required',
+                'unique:clientes,Dni,' . $cliente->Dni . ',Dni', // Validación para editar
+                'max:20'
+            ],
+            'Nombres' => 'required|max:50',
+            'Apellidos' => 'required|max:50',
+            'PrimerTelefono' => 'required|max:20',
+            'SegundoTelefono' => 'nullable|max:20',
+            'CodMunicipio' => 'nullable|exists:municipios,CodMunicipio',
+            'Direccion' => 'required|max:200',
+        ]);
 
-    $cliente->update($request->all());
+        $cliente->update($request->all());
 
-    return redirect()->route('clientes.ver')->with('success', 'Cliente actualizado.');
-}
+        return redirect()->route('clientes.ver')->with('success', 'Cliente actualizado.');
+    }
 
-public function eliminar(string $dni): RedirectResponse
-{
-    $cliente = Cliente::findOrFail($dni);
-    $cliente->update(['IsDelete' => 1]); // Marcamos el cliente como "eliminado"
-    return redirect()->route('clientes.ver')->with('success', 'Cliente eliminado.');
-}
-
+    public function eliminar(string $dni): RedirectResponse
+    {
+        $cliente = Cliente::findOrFail($dni);
+        $cliente->update(['IsDelete' => 1]); // Marcamos el cliente como "eliminado"
+        return redirect()->route('clientes.ver')->with('success', 'Cliente eliminado.');
+    }
 }

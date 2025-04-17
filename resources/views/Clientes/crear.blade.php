@@ -1,4 +1,4 @@
-@extends('layouts.app') {{-- Asumiendo que tienes un layout llamado app.blade.php --}}
+}@extends('layouts.app') {{-- Asumiendo que tienes un layout llamado app.blade.php --}}
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
