@@ -3,6 +3,14 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\EnvioController;
+use App\Http\Controllers\PaisController;
+
+
+
+Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados']);
+
 
 Route::get('/', function () {
     return view('index');
@@ -27,8 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
     Route::delete('/clientes/eliminar/{dni}', [ClienteController::class, 'eliminar'])->name('clientes.eliminar');
 
-    // Ruta para obtener la dirección del municipio
-    Route::get('/clientes/municipio/{codMunicipio}/direccion', [ClienteController::class, 'obtenerDireccionMunicipio'])->name('clientes.obtenerDireccion');
+    Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados']);
+    Route::get('/estados/{id}', [PaisController::class, 'getEstados']);
+
+    Route::resource('envios', EnvioController::class);
 });
 
 require __DIR__.'/auth.php';

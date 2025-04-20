@@ -1,4 +1,4 @@
-}@extends('layouts.app') {{-- Asumiendo que tienes un layout llamado app.blade.php --}}
+@extends('layouts.app') {{-- Asumiendo que tienes un layout llamado app.blade.php --}}
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
@@ -45,7 +45,7 @@
 
         <div class="form-group">
             <label for="PaisID">País:</label>
-            <select id="PaisID" name="PaisID" class="form-control">
+            <select id="PaisID" name="PaisID" class="form-control" required>
                 <option value="">Seleccionar País</option>
                 @foreach ($paises as $pais)
                     <option value="{{ $pais->CodPais }}">{{ $pais->Nombre }}</option>
@@ -55,21 +55,19 @@
 
         <div class="form-group">
             <label for="EstadoID">Estado/Departamento:</label>
-            <select id="EstadoID" name="EstadoID" class="form-control">
+            <select id="EstadoID" name="EstadoID" class="form-control" required>
                 <option value="">Seleccionar Estado/Departamento</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="CodMunicipio">Municipio/Ciudad:</label>
-            <select id="CodMunicipio" name="CodMunicipio" class="form-control">
-                <option value="">Seleccionar Municipio/Ciudad</option>
-            </select>
+            <label for="Municipio">Municipio/Ciudad:</label>
+            <input type="text" id="Municipio" name="Municipio" class="form-control" required>
         </div>
 
         <div class="form-group">
             <label for="Direccion">Dirección:</label>
-            <input type="text" id="Direccion" name="Direccion" value="{{ old('Direccion') }}" class="form-control">
+            <input type="text" id="Direccion" name="Direccion" value="{{ old('Direccion') }}" class="form-control" required>
         </div>
 
         <button type="submit" class="btn btn-primary">Guardar Cliente</button>
@@ -79,16 +77,13 @@
         document.addEventListener('DOMContentLoaded', function () {
             const paisSelect = document.getElementById('PaisID');
             const estadoSelect = document.getElementById('EstadoID');
-            const municipioSelect = document.getElementById('CodMunicipio');
-            const direccionInput = document.getElementById('Direccion');
 
             paisSelect.addEventListener('change', function () {
                 const paisId = this.value;
                 estadoSelect.innerHTML = '<option value="">Seleccionar Estado/Departamento</option>';
-                municipioSelect.innerHTML = '<option value="">Seleccionar Municipio/Ciudad</option>';
 
                 if (paisId) {
-                    fetch(`/paises/${paisId}/estados`)  // Ruta para obtener estados
+                    fetch(`/paises/${paisId}/estados`)
                         .then(response => response.json())
                         .then(estados => {
                             estados.forEach(estado => {
@@ -99,39 +94,6 @@
                             });
                         })
                         .catch(error => console.error('Error al cargar estados:', error));
-                }
-            });
-
-            estadoSelect.addEventListener('change', function () {
-                const estadoId = this.value;
-                municipioSelect.innerHTML = '<option value="">Seleccionar Municipio/Ciudad</option>';
-
-                if (estadoId) {
-                    fetch(`/estados/${estadoId}/municipios`)  // Ruta para obtener municipios
-                        .then(response => response.json())
-                        .then(municipios => {
-                            municipios.forEach(municipio => {
-                                const option = document.createElement('option');
-                                option.value = municipio.CodMunicipio;
-                                option.textContent = municipio.NomMunicipio;
-                                municipioSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error('Error al cargar municipios:', error));
-                }
-            });
-
-            municipioSelect.addEventListener('change', function () {
-                const municipioId = this.value;
-                if (municipioId) {
-                    fetch(`/municipios/${municipioId}/direccion`)  // Ruta para obtener la dirección
-                        .then(response => response.json())
-                        .then(data => {
-                            direccionInput.value = data.direccion || '';
-                        })
-                        .catch(error => console.error('Error al cargar la dirección:', error));
-                } else {
-                    direccionInput.value = '';
                 }
             });
         });

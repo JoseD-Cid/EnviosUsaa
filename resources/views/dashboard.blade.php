@@ -45,7 +45,7 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h3 class="fw-bold">Bienvenido, {{ Auth::user()->name }} </h3>
-                    <p class="text-muted">Desde aquí puedes gestionar tus clientes y más.</p>
+                    <p class="text-muted">Desde aquí puedes gestionar tus clientes, envíos y más.</p>
                 </div>
 
                 <div class="row justify-content-center">
@@ -72,6 +72,31 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Tarjeta: Crear Envío --}}
+                    <div class="col-md-5 col-lg-4 mb-4">
+                        <div class="card shadow-sm h-100 border-warning">
+                            <div class="card-body text-center">
+                                <i class="bi bi-box-seam fs-1 text-warning mb-3"></i>
+                                <h5 class="card-title">Crear Envío</h5>
+                                <p class="card-text">Registra un nuevo envío con sus paquetes.</p>
+                                <a href="{{ route('envios.create') }}" class="btn btn-warning w-100 text-white">Nuevo Envío</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Tarjeta: Ver Envíos --}}
+                    <div class="col-md-5 col-lg-4 mb-4">
+                        <div class="card shadow-sm h-100 border-dark">
+                            <div class="card-body text-center">
+                                <i class="bi bi-truck fs-1 text-dark mb-3"></i>
+                                <h5 class="card-title">Ver Envíos</h5>
+                                <p class="card-text">Consulta los envíos registrados y sus paquetes.</p>
+                                <a href="{{ route('envios.index') }}" class="btn btn-dark w-100">Ver Envíos</a>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

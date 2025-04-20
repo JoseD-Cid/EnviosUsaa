@@ -13,18 +13,22 @@ class Municipio extends Model
 
     protected $primaryKey = 'CodMunicipio';
     public $timestamps = false;
-
-    protected $fillable = ['NomMunicipio', 'Estatus', 'IsDelete', 'CodEstado'];
-
     protected $table = 'municipios';
+
+    protected $fillable = [
+        'NomMunicipio',
+        'Estatus',
+        'IsDelete',
+        'CodEstado'
+    ];
 
     public function estado(): BelongsTo
     {
-        return $this->belongsTo(Estado::class, 'CodEstado');
+        return $this->belongsTo(Estado::class, 'CodEstado', 'CodEstado');
     }
 
     public function clientes(): HasMany
     {
-        return $this->hasMany(Cliente::class, 'CodMunicipio');
+        return $this->hasMany(Cliente::class, 'CodMunicipio', 'CodMunicipio');
     }
 }

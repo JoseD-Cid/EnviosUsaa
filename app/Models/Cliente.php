@@ -2,46 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
-
 
 class Cliente extends Model
 {
-    use HasFactory;
-
+    protected $table = 'clientes';
     protected $primaryKey = 'Dni';
-
-    // Si el Dni no es un entero autoincrementable, debes indicar que no es incremental
     public $incrementing = false;
-
-    // Si el tipo de dato de la clave primaria no es un entero, debes especificarlo
-    protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
-        'Dni',
-        'Nombres',
-        'Apellidos',
-        'PrimerTelefono',
-        'SegundoTelefono',
-        'Estatus',
-        'IsDelete',
-        'CodMunicipio',
-        'Direccion',
-        'IsDelete'
+        'Dni', 'Nombres', 'Apellidos', 'PrimerTelefono', 'SegundoTelefono',
+        'PaisID', 'EstadoID', 'Municipio', 'Direccion', 'IsDelete'
     ];
 
-    public function municipio(): BelongsTo
+    // Relación con el Estado
+    public function estado()
     {
-        return $this->belongsTo(Municipio::class, 'CodMunicipio');
+        return $this->belongsTo(Estado::class, 'EstadoID', 'CodEstado');
     }
 
-    protected static function booted()
+    // Relación con el País (a través del estado)
+    public function pais()
     {
-        static::addGlobalScope('active', function (Builder $builder) {
-            $builder->where('IsDelete', 0);
-        });
+        return $this->estado ? $this->estado->pais() : null;
     }
 }

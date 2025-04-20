@@ -1,7 +1,7 @@
-@extends('layouts.app')  {{-- Asegúrate de que 'layouts.app' es correcto --}}
+@extends('layouts.app')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">  {{-- Si tienes estilos específicos --}}
+    <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
 
     <h1>Lista de Clientes</h1>
 
@@ -35,18 +35,12 @@
                         <td>{{ $cliente->Apellidos }}</td>
                         <td>{{ $cliente->PrimerTelefono }}</td>
                         <td>{{ $cliente->SegundoTelefono ?? '-' }}</td>
-                        <td>{{ $cliente->municipio->estado->pais->Nombre ?? '-' }}</td>  {{-- Asumiendo relaciones --}}
-                        <td>{{ $cliente->municipio->estado->NomEstado ?? '-' }}</td>    {{-- Asumiendo relaciones --}}
-                        <td>{{ $cliente->municipio->NomMunicipio ?? '-' }}</td>        {{-- Asumiendo relaciones --}}
+                        <td>{{ $cliente->pais?->Nombre ?? '-' }}</td>
+                        <td>{{ $cliente->estado?->NomEstado ?? '-' }}</td>
+                        <td>{{ $cliente->Municipio?? '-' }}</td>
                         <td>{{ $cliente->Direccion ?? '-' }}</td>
                         <td>
-                            {{-- **DEPURACIÓN:** Comenta o elimina esta sección para ocultar la URL --}}
-                            {{-- @php
-                                $editUrl = route('clientes.editar', ['dni' => $cliente->Dni]);
-                                echo "URL de edición: " . $editUrl . "<br>";
-                            @endphp --}}
                             <a href="{{ route('clientes.editar', ['dni' => $cliente->Dni]) }}" class="btn btn-sm btn-primary">Editar</a>
-
                             <form action="{{ route('clientes.eliminar', ['dni' => $cliente->Dni]) }}" method="POST" style="display: inline-block;">
                                 @csrf
                                 @method('DELETE')

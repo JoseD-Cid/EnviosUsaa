@@ -10,12 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class ClienteController extends Controller
 {
     public function crear(): View
     {
-        $paises = Pais::with('estados.municipios')->get();
+        $paises = Pais::with('estados')->get();
         return view('clientes.crear', compact('paises'));
     }
 
@@ -38,7 +39,7 @@ class ClienteController extends Controller
 
     public function ver(): View
     {
-        $clientes = Cliente::with('municipio.estado.pais')->where('IsDelete', 0)->get(); // Filtra los no eliminados
+        $clientes = Cliente::with('estado.pais')->where('IsDelete', 0)->get(); // Filtra los no eliminados
         return view('clientes.ver', compact('clientes'));
     }
 

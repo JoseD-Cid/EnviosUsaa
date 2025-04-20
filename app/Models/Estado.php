@@ -2,30 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Estado extends Model
 {
-    use HasFactory;
-
+    protected $table = 'estados';
     protected $primaryKey = 'CodEstado';
     public $timestamps = false;
 
-    protected $fillable = ['NomEstado', 'Estatus', 'IsDelete', 'CodPais'];
+    protected $fillable = ['CodEstado', 'NomEstado', 'CodPais', 'Estatus', 'IsDelete'];
 
-    protected $table = 'estados';
-
-    public function pais(): BelongsTo
+    public function pais()
     {
-        return $this->belongsTo(Pais::class, 'CodPais');
+        return $this->belongsTo(Pais::class, 'CodPais', 'CodPais');
     }
 
-    public function municipios(): HasMany
+    public function clientes()
     {
-        return $this->hasMany(Municipio::class, 'CodEstado');
+        return $this->hasMany(Cliente::class, 'EstadoID', 'CodEstado');
     }
 }
 
