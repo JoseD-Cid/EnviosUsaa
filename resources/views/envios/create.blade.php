@@ -28,14 +28,7 @@
             @enderror
         </div>
 
-        <div class="mb-3">
-            <label for="tracking_number">Tracking</label>
-            <input type="text" name="tracking_number" class="form-control" value="{{ old('tracking_number') }}" required>
-            @error('tracking_number')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
-        </div>
-
+      
         <div class="mb-3">
             <label for="destino_pais_id">País</label>
             <select name="destino_pais_id" id="destino_pais_id" class="form-control" required>

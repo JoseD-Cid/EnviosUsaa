@@ -17,43 +17,50 @@ class EnvioController extends Controller
 {
     public function index()
     {
-        $envios = Envio::with('paquetes')->get();
+        $envios = Envio::with(['paquetes', 'cliente', 'destino_pais'])->get();
         return view('envios.index', compact('envios'));
     }
+    
 
     public function create()
     {
-        $paises = Pais::all();
-        $estados = Estado::all();
-        $clientes = Cliente::where('IsDelete', 0)->where('Estatus', 1)->get();
+        $paises = \App\Models\Pais::all();
+        $clientes = \App\Models\Cliente::where('IsDelete', 0)->where('Estatus', 1)->get();
     
-        return view('envios.create', compact('paises', 'estados', 'clientes'));
+        return view('envios.create', compact('paises', 'clientes'));
     }
+    
 
     public function store(Request $request)
     {
         $request->validate([
             'cliente_dni' => 'required|string|max:20',
             'fecha_envio' => 'required|date',
-            'tracking_number' => 'required|unique:envios',
             'destino_pais_id' => 'nullable|exists:paises,CodPais',
             'destino_estado_id' => 'nullable|exists:estados,CodEstado',
             'ciudad_destino' => 'required|string',
             'direccion_destino' => 'required|string',
             'estatus_envio' => 'required|string',
             'paquetes.*.descripcion' => 'required|string',
-            'paquetes.*.peso' => 'required|integer',
-            'paquetes.*.valor_declarado' => 'required|integer',
+            'paquetes.*.peso' => 'required|numeric|min:0',
+            'paquetes.*.valor_declarado' => 'required|numeric|min:0',
         ]);
-
-        $envio = Envio::create($request->except('paquetes'));
-
-        foreach ($request->paquetes as $paqueteData) {
-            $envio->paquetes()->create($paqueteData);
+    
+        // Generar tracking único
+        $tracking = 'TRK' . strtoupper(uniqid());
+    
+        $data = $request->except('paquetes');
+        $data['tracking_number'] = $tracking;
+    
+        $envio = \App\Models\Envio::create($data);
+    
+        foreach ($request->paquetes as $paquete) {
+            $envio->paquetes()->create($paquete);
         }
-
-        return redirect()->route('envios.index')->with('success', '¡Envío creado con paquetes!');
+    
+        return redirect()->route('envios.index')->with('success', '¡Envío creado correctamente!');
     }
+    
     
     public function obtenerEstadosPorPais($paisId)
 {
