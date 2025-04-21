@@ -57,7 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/estados-por-pais/{id}', [EstadoController::class, 'obtenerPorPais']);
     
     
-
+    
+    Route::resource('envios', EnvioController::class)->except(['show']);
     Route::resource('envios', EnvioController::class);
     Route::get('/envios/create', [EnvioController::class, 'create'])->name('envios.create');
     Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');

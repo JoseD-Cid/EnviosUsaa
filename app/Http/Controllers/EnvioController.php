@@ -24,9 +24,10 @@ class EnvioController extends Controller
     public function create()
     {
         $paises = Pais::all();
+        $estados = Estado::all();
         $clientes = Cliente::where('IsDelete', 0)->where('Estatus', 1)->get();
     
-        return view('envios.create', compact('paises', 'clientes'));
+        return view('envios.create', compact('paises', 'estados', 'clientes'));
     }
 
     public function store(Request $request)
@@ -53,6 +54,7 @@ class EnvioController extends Controller
 
         return redirect()->route('envios.index')->with('success', '¡Envío creado con paquetes!');
     }
+    
     public function obtenerEstadosPorPais($paisId)
 {
     $estados = Estado::where('CodPais', $paisId)
@@ -62,5 +64,6 @@ class EnvioController extends Controller
 
     return response()->json($estados);
 }
+
 
 }
