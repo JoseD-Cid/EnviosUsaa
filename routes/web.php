@@ -44,6 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/clientes/guardar', [ClienteController::class, 'guardar'])->name('clientes.guardar');
     Route::get('/clientes/ver', [ClienteController::class, 'ver'])->name('clientes.ver');
 
+    Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados']);
+    
+
     // Rutas para editar y eliminar clientes
     Route::get('/clientes/editar/{dni}', [ClienteController::class, 'editar'])->name('clientes.editar');
     Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
