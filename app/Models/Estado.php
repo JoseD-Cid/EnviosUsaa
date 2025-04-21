@@ -21,5 +21,11 @@ class Estado extends Model
     {
         return $this->hasMany(Cliente::class, 'EstadoID', 'CodEstado');
     }
+     // Relación con los envíos
+     public function envios()
+     {
+         return $this->hasMany(Envio::class, 'destino_estado_id', 'CodEstado');
+     }
 }
+
 

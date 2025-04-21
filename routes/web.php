@@ -6,7 +6,21 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\PaisController;
+use App\Models\Estado;
 
+
+Route::get('/estados/{codPais}', function ($codPais) {
+    return Estado::where('CodPais', $codPais)
+        ->where('Estatus', 1)
+        ->where('IsDelete', 0)
+        ->get();
+});
+
+
+Route::get('/estados/{paisId}', function($paisId) {
+    $estados = Estado::where('CodPais', $paisId)->get();
+    return response()->json($estados);
+});
 
 
 Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados']);
@@ -37,8 +51,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados']);
     Route::get('/estados/{id}', [PaisController::class, 'getEstados']);
+    Route::get('/estados-por-pais/{id}', [EstadoController::class, 'obtenerPorPais']);
+    
+    
 
     Route::resource('envios', EnvioController::class);
+    Route::get('/envios/create', [EnvioController::class, 'create'])->name('envios.create');
+    Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
+    Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
+    Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
+    
 });
 
 require __DIR__.'/auth.php';

@@ -1,25 +1,21 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Pais extends Model
 {
-    protected $table = 'paises';
     protected $primaryKey = 'CodPais';
-    public $timestamps = false;
-
-    protected $fillable = ['CodPais', 'Nombre', 'Estatus', 'IsDelete'];
+    public $incrementing = false;
+    protected $fillable = ['CodPais', 'Nombre'];
 
     public function estados()
     {
-        return $this->hasMany(Estado::class, 'CodPais', 'CodPais');
+        return $this->hasMany(Estado::class, 'pais_id', 'CodPais');
     }
-    // Relación con los envíos
+
     public function envios()
     {
         return $this->hasMany(Envio::class, 'destino_pais_id', 'CodPais');
     }
 }
-
