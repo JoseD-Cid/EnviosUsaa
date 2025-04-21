@@ -22,26 +22,53 @@ class ClienteController extends Controller
 
     public function guardar(Request $request): RedirectResponse
     {
-        $request->validate([
-            'Dni' => 'required|unique:clientes|max:20',
-            'Nombres' => 'required|max:255',
-            'Apellidos' => 'required|max:255',
-            'PrimerTelefono' => 'required|max:20',
-            'SegundoTelefono' => 'nullable|max:20',
-            'CodMunicipio' => 'nullable|exists:municipios,CodMunicipio',
-            'Direccion' => 'required|max:255',
-        ]);
+    $request->validate([
+        'Dni' => 'required|unique:clientes|max:20',
+        'Nombres' => 'required|max:50',
+        'Apellidos' => 'required|max:50',
+        'PrimerTelefono' => 'required|regex:/^[0-9]+$/|max:20', // Solo números
+        'SegundoTelefono' => 'nullable|regex:/^[0-9]+$/|max:20', // Solo números (opcional)
+        'PaisID' => 'required|exists:paises,CodPais', // Debe existir en la tabla paises
+        'EstadoID' => 'required|exists:estados,CodEstado,CodPais,' . $request->input('PaisID'), // Debe existir en la tabla estados y pertenecer al PaisID seleccionado
+        'Municipio' => 'required|max:50',
+        'Direccion' => 'required|max:200',
+    ]);
 
-        Cliente::create($request->all());
+    Cliente::create($request->all());
 
-        return redirect()->route('clientes.ver')->with('success', 'Cliente creado.');
+    return redirect()->route('clientes.ver')->with('success', 'Cliente creado.');
     }
 
-    public function ver(): View
-    {
-        $clientes = Cliente::with('estado.pais')->where('IsDelete', 0)->get(); // Filtra los no eliminados
-        return view('clientes.ver', compact('clientes'));
+    public function ver(Request $request): View
+{
+    $query = Cliente::query()->where('IsDelete', 0)->with('estado.pais');
+
+    if ($request->has('nombre') && $request->filled('nombre')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('Nombres', 'like', '%' . $request->input('nombre') . '%')
+              ->orWhere('Apellidos', 'like', '%' . $request->input('nombre') . '%');
+        });
     }
+
+    if ($request->has('pais') && $request->filled('pais')) {
+        $paisId = $request->input('pais');
+        $query->whereHas('estado', function ($q) use ($paisId) {
+            $q->whereHas('pais', function ($subQuery) use ($paisId) {
+                $subQuery->where('CodPais', $paisId);
+            });
+        });
+    }
+
+    if ($request->has('estado') && $request->filled('estado')) {
+        $query->where('EstadoID', $request->input('estado'));
+    }
+
+    $clientes = $query->paginate(10);
+    $paises = Pais::all();
+    $estados = Estado::all();
+
+    return view('clientes.ver', compact('clientes', 'paises', 'estados'));
+}
 
     public function obtenerDireccionMunicipio(Request $request, $codMunicipio): JsonResponse
     {
@@ -56,37 +83,35 @@ class ClienteController extends Controller
 
     public function editar(string $dni): View
     {
-        $cliente = Cliente::findOrFail($dni);
-        return view('clientes.editar', compact('cliente'));
-    }
+    $cliente = Cliente::findOrFail($dni);
+    $paises = Pais::all(); // Obtén todos los países
+    $estados = Estado::all(); // Obtén todos los estados
+    return view('clientes.editar', compact('cliente', 'paises', 'estados'));
+    }   
 
     public function actualizar(Request $request, string $dni): RedirectResponse
     {
-        $cliente = Cliente::findOrFail($dni);
+    $cliente = Cliente::findOrFail($dni);
 
-        $request->validate([
-            'Dni' => [
-                'required',
-                'unique:clientes,Dni,' . $cliente->Dni . ',Dni', // Validación para editar
-                'max:20'
-            ],
-            'Nombres' => 'required|max:50',
-            'Apellidos' => 'required|max:50',
-            'PrimerTelefono' => 'required|max:20',
-            'SegundoTelefono' => 'nullable|max:20',
-            'CodMunicipio' => 'nullable|exists:municipios,CodMunicipio',
-            'Direccion' => 'required|max:200',
-        ]);
+    $request->validate([
+        'Nombres' => 'required|max:50',
+        'Apellidos' => 'required|max:50',
+        'PrimerTelefono' => 'required|regex:/^[0-9]+$/|max:20', // Solo números
+        'SegundoTelefono' => 'nullable|regex:/^[0-9]+$/|max:20', // Solo números (opcional)
+        'EstadoID' => 'nullable|exists:estados,CodEstado',
+        'Municipio' => 'nullable|max:50',
+        'Direccion' => 'required|max:255',
+    ]);
 
-        $cliente->update($request->all());
+    $cliente->update($request->except('Dni'));
 
-        return redirect()->route('clientes.ver')->with('success', 'Cliente actualizado.');
+    return redirect()->route('clientes.ver')->with('success', 'Cliente actualizado.');
     }
 
     public function eliminar(string $dni): RedirectResponse
     {
         $cliente = Cliente::findOrFail($dni);
-        $cliente->update(['IsDelete' => 1]); // Marcamos el cliente como "eliminado"
+        $cliente->update(['IsDelete' => 1]);
         return redirect()->route('clientes.ver')->with('success', 'Cliente eliminado.');
     }
 }
