@@ -1,4 +1,3 @@
-{{-- resources/views/clientes/ver.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
@@ -12,35 +11,39 @@
         </div>
     @endif
 
-    <div class="search-filters-container">
-        <div class="form-group search-input">
-            <label for="nombre">Buscar por Nombre:</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ request('nombre') }}">
-        </div>
-        <div class="form-group filter-select">
-            <label for="pais">Filtrar por País:</label>
-            <select class="form-control" id="pais" name="pais">
-                <option value="">Todos los Países</option>
-                @foreach($paises as $pais)
-                    <option value="{{ $pais->CodPais }}" {{ request('pais') == $pais->CodPais ? 'selected' : '' }}>{{ $pais->Nombre }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group filter-select">
-            <label for="estado">Filtrar por Estado:</label>
-            <select class="form-control" id="estado" name="estado">
-                <option value="">Todos los Estados</option>
-                @if(request('pais'))
-                    @foreach($estados->where('CodPais', request('pais')) as $estado)
-                        <option value="{{ $estado->CodEstado }}" {{ request('estado') == $estado->CodEstado ? 'selected' : '' }}>{{ $estado->NomEstado }}</option>
+    <div class="mb-3">
+        <a href="{{ url('/dashboard') }}" class="btn btn-secondary">Regresar</a>
+    </div>
+
+    <div class="mb-3">
+        <form action="{{ route('clientes.ver') }}" method="GET" class="form-inline">
+            <div class="form-group mr-2">
+                <label for="nombre" class="mr-2">Buscar por Nombre:</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ request('nombre') }}">
+            </div>
+            <div class="form-group mr-2">
+                <label for="pais" class="mr-2">Filtrar por País:</label>
+                <select class="form-control" id="pais" name="pais">
+                    <option value="">Todos los Países</option>
+                    @foreach($paises as $pais)
+                        <option value="{{ $pais->CodPais }}" {{ request('pais') == $pais->CodPais ? 'selected' : '' }}>{{ $pais->Nombre }}</option>
                     @endforeach
-                @endif
-            </select>
-        </div>
-        <div class="button-group">
+                </select>
+            </div>
+            <div class="form-group mr-2">
+                <label for="estado" class="mr-2">Filtrar por Estado:</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="">Todos los Estados</option>
+                    @if(request('pais'))
+                        @foreach($estados->where('CodPais', request('pais')) as $estado)
+                            <option value="{{ $estado->CodEstado }}" {{ request('estado') == $estado->CodEstado ? 'selected' : '' }}>{{ $estado->NomEstado }}</option>
+                        @endforeach
+                    @endif
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Buscar</button>
-            <a href="{{ route('clientes.ver') }}" class="btn btn-secondary">Limpiar</a>
-        </div>
+            <a href="{{ route('clientes.ver') }}" class="btn btn-secondary ml-2">Limpiar Filtros</a>
+        </form>
     </div>
 
     <div class="table-responsive">
