@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\TrackingHistory;
 use Illuminate\Database\Eloquent\Model;
 
 class Envio extends Model
@@ -33,6 +34,11 @@ public function destino_pais()
 public function destino_estado()
 {
     return $this->belongsTo(Estado::class, 'destino_estado_id', 'CodEstado');
+}
+
+public function trackingHistory()
+{
+    return $this->hasMany(TrackingHistory::class, 'envio_id')->orderBy('created_at', 'desc');
 }
 
 

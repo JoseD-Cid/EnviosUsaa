@@ -10,13 +10,17 @@
 
                 <div class="collapse navbar-collapse" id="navbarDashboard">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
                         <li class="nav-item">
                             <a class="nav-link active" href="{{ route('dashboard') }}">Dashboard</a>
                         </li>
                         @can('crear clientes')
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('clientes.crear') }}">Crear Cliente</a>
+                            <a class="nav-link" href="{{ route('seguimiento') }}">
+                                <i class="bi bi-upc-scan"></i> Seguimiento
+                            </a>
                         </li>
+<<<<<<< HEAD
                         @endcan
                         @can('ver clientes')
                         <li class="nav-item">
@@ -29,6 +33,9 @@
                         </li>
                         @endhasrole
                     </ul>
+=======
+                                            </ul>
+>>>>>>> 453f61652c19cfa3c9412ed96e5e88c04dc5085d
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

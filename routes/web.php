@@ -27,6 +27,7 @@ Route::get('/', function () {
     return view('index');
 });
 
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -87,4 +88,17 @@ Route::middleware('auth')->group(function () {
     
     // Ruta para cargar estados por país (utilizada en formularios de envío)
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
+<<<<<<< HEAD
 });
+=======
+
+    
+    Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');
+
+// Actualización de estado (solo admin)
+Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])
+     ->name('envios.actualizar-estado')->middleware('auth');
+});
+
+Route::get('/seguimiento', [EnvioController::class, 'seguimiento'])->name('seguimiento');
+>>>>>>> 453f61652c19cfa3c9412ed96e5e88c04dc5085d
