@@ -6,9 +6,22 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\EstadoController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
 use App\Models\Estado;
+
+// Rutas para roles y permisos - Solo accesibles para administradores
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::get('/roles/user/{id}', [RoleController::class, 'editUserRoles'])->name('roles.edit-user');
+    Route::put('/roles/user/{id}', [RoleController::class, 'updateUserRoles'])->name('roles.update-user');
+    Route::get('/roles/{id}/edit', [RoleController::class, 'editRole'])->name('roles.edit-role');
+    Route::put('/roles/{id}', [RoleController::class, 'updateRole'])->name('roles.update-role');
+    Route::get('/roles/create', [RoleController::class, 'createRole'])->name('roles.create');
+    Route::post('/roles', [RoleController::class, 'storeRole'])->name('roles.store');
+    Route::delete('/roles/{id}', [RoleController::class, 'deleteRole'])->name('roles.delete');
+});
 
 Route::get('/', function () {
     return view('index');
@@ -21,7 +34,7 @@ Route::get('/dashboard', function () {
 // Rutas de autenticación
 require __DIR__.'/auth.php';
 
-// Grupo de rutas que requieren autenticación
+// Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
     
     // Perfil de usuario
@@ -29,22 +42,49 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Clientes
-    Route::get('/clientes/crear', [ClienteController::class, 'crear'])->name('clientes.crear');
-    Route::post('/clientes/guardar', [ClienteController::class, 'guardar'])->name('clientes.guardar');
-    Route::get('/clientes/ver', [ClienteController::class, 'ver'])->name('clientes.ver');
-    Route::get('/clientes/editar/{dni}', [ClienteController::class, 'editar'])->name('clientes.editar');
-    Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
-    Route::delete('/clientes/eliminar/{dni}', [ClienteController::class, 'eliminar'])->name('clientes.eliminar');
+    // Clientes - Protegidos con permisos específicos
+    Route::middleware('permission:crear clientes')->group(function () {
+        Route::get('/clientes/crear', [ClienteController::class, 'crear'])->name('clientes.crear');
+        Route::post('/clientes/guardar', [ClienteController::class, 'guardar'])->name('clientes.guardar');
+    });
+    
+    Route::middleware('permission:ver clientes')->group(function () {
+        Route::get('/clientes/ver', [ClienteController::class, 'ver'])->name('clientes.ver');
+    });
+    
+    Route::middleware('permission:editar clientes')->group(function () {
+        Route::get('/clientes/editar/{dni}', [ClienteController::class, 'editar'])->name('clientes.editar');
+        Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
+    });
+    
+    Route::middleware('permission:eliminar clientes')->group(function () {
+        Route::delete('/clientes/eliminar/{dni}', [ClienteController::class, 'eliminar'])->name('clientes.eliminar');
+    });
 
-    // Ubicación
+    // Ubicación - Accesible para todos los usuarios autenticados
     Route::get('/paises/{id}/estados', [UbicacionController::class, 'obtenerEstados'])->name('paises.estados');
     Route::get('/estados/{id}', [PaisController::class, 'getEstados']);
     Route::get('/estados-por-pais/{id}', [EstadoController::class, 'obtenerPorPais']);
 
-    // Envíos
-    Route::resource('envios', EnvioController::class)->except(['show']);
-    Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
-    Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
+    // Envíos - Protegidos con permisos específicos
+    Route::middleware('permission:ver envios')->group(function () {
+        Route::get('/envios', [EnvioController::class, 'index'])->name('envios.index');
+    });
+    
+    Route::middleware('permission:crear envios')->group(function () {
+        Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
+        Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
+    });
+    
+    Route::middleware('permission:editar envios')->group(function () {
+        Route::get('/envios/{envio}/edit', [EnvioController::class, 'edit'])->name('envios.edit');
+        Route::put('/envios/{envio}', [EnvioController::class, 'update'])->name('envios.update');
+    });
+    
+    Route::middleware('permission:eliminar envios')->group(function () {
+        Route::delete('/envios/{envio}', [EnvioController::class, 'destroy'])->name('envios.destroy');
+    });
+    
+    // Ruta para cargar estados por país (utilizada en formularios de envío)
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
 });

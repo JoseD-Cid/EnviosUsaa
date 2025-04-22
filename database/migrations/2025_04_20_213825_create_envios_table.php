@@ -15,8 +15,8 @@ return new class extends Migration {
         
             $table->date('fecha_envio');
             $table->string('tracking_number')->unique();
-            $table->unsignedBigInteger('destino_pais_id')->nullable();
-            $table->unsignedBigInteger('destino_estado_id')->nullable();
+            $table->Integer('destino_pais_id')->nullable();
+            $table->Integer('destino_estado_id')->nullable();
             $table->string('ciudad_destino');
             $table->string('direccion_destino');
         

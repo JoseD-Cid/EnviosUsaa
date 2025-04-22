@@ -22,5 +22,13 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+    public function down()
+    {
+        Schema::table('envios', function (Blueprint $table) {
+            // Eliminar claves foráneas
+            $table->dropForeign(['destino_pais_id']);
+            $table->dropForeign(['destino_estado_id']);
+        });
+    }
     
 };

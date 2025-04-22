@@ -13,12 +13,21 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="{{ route('dashboard') }}">Dashboard</a>
                         </li>
+                        @can('crear clientes')
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('clientes.crear') }}">Crear Cliente</a>
                         </li>
+                        @endcan
+                        @can('ver clientes')
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('clientes.ver') }}">Ver Clientes</a>
                         </li>
+                        @endcan
+                        @hasrole('admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('roles.index') }}">Roles y Permisos</a>
+                        </li>
+                        @endhasrole
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
@@ -50,6 +59,7 @@
 
                 <div class="row justify-content-center">
                     {{-- Tarjeta: Crear Cliente --}}
+                    @can('crear clientes')
                     <div class="col-md-5 col-lg-4 mb-4">
                         <div class="card shadow-sm h-100 border-success">
                             <div class="card-body text-center">
@@ -60,8 +70,10 @@
                             </div>
                         </div>
                     </div>
+                    @endcan
 
                     {{-- Tarjeta: Ver Clientes --}}
+                    @can('ver clientes')
                     <div class="col-md-5 col-lg-4 mb-4">
                         <div class="card shadow-sm h-100 border-primary">
                             <div class="card-body text-center">
@@ -72,8 +84,10 @@
                             </div>
                         </div>
                     </div>
+                    @endcan
 
                     {{-- Tarjeta: Crear Envío --}}
+                    @can('crear envios')
                     <div class="col-md-5 col-lg-4 mb-4">
                         <div class="card shadow-sm h-100 border-warning">
                             <div class="card-body text-center">
@@ -84,8 +98,10 @@
                             </div>
                         </div>
                     </div>
+                    @endcan
 
                     {{-- Tarjeta: Ver Envíos --}}
+                    @can('ver envios')
                     <div class="col-md-5 col-lg-4 mb-4">
                         <div class="card shadow-sm h-100 border-dark">
                             <div class="card-body text-center">
@@ -96,7 +112,21 @@
                             </div>
                         </div>
                     </div>
+                    @endcan
 
+                    {{-- Tarjeta: Gestión de Roles --}}
+                    @hasrole('admin')
+                    <div class="col-md-5 col-lg-4 mb-4">
+                        <div class="card shadow-sm h-100 border-danger">
+                            <div class="card-body text-center">
+                                <i class="bi bi-shield-lock fs-1 text-danger mb-3"></i>
+                                <h5 class="card-title">Gestión de Roles</h5>
+                                <p class="card-text">Administra roles y permisos de los usuarios del sistema.</p>
+                                <a href="{{ route('roles.index') }}" class="btn btn-danger w-100">Gestionar Roles</a>
+                            </div>
+                        </div>
+                    </div>
+                    @endhasrole
                 </div>
             </div>
         </div>
