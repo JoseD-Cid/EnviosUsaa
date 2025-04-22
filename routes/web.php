@@ -14,6 +14,7 @@ Route::get('/', function () {
     return view('index');
 });
 
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -47,4 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
     Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
+
+    
+    Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');
+
+// Actualización de estado (solo admin)
+Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])
+     ->name('envios.actualizar-estado')->middleware('auth');
 });
+
+Route::get('/seguimiento', [EnvioController::class, 'seguimiento'])->name('seguimiento');

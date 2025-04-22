@@ -77,31 +77,28 @@
             </div>
         </section>
 
-        <!-- Mostrar la sección de clientes solo si el usuario está autenticado -->
-        @auth
-        <section id="clientes" class="container py-5">
-            <h3 class="text-center mb-4">Gestión de Clientes</h3>
-            <div class="row">
-                <div class="col-md-6 text-center">
-                    <a href="{{ route('clientes.crear') }}" class="btn btn-success w-100">Crear Cliente</a>
-                </div>
-                <div class="col-md-6 text-center">
-                    <a href="{{ route('clientes.ver') }}" class="btn btn-info w-100">Ver Clientes</a>
-                </div>
-            </div>
-        </section>
-        @endauth
+     
 
         <section id="seguimiento" class="bg-light py-5">
-            <div class="container">
-                <h3 class="text-center mb-4">Seguimiento de Envíos</h3>
-                <form class="row justify-content-center">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control mb-3" placeholder="Ingresa tu código de envío">
-                        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        {{-- Dentro del container --}}
+<div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="{{ route('seguimiento') }}" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="tracking_number" 
+                               class="form-control" 
+                               placeholder="Buscar envío por tracking">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
         </section>
 
         <section id="contacto" class="container py-5">
