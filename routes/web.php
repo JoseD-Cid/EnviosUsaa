@@ -27,7 +27,6 @@ Route::get('/', function () {
     return view('index');
 });
 
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -37,27 +36,27 @@ require __DIR__.'/auth.php';
 
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
-    
+
     // Perfil de usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Clientes - Protegidos con permisos específicos
     Route::middleware('permission:crear clientes')->group(function () {
         Route::get('/clientes/crear', [ClienteController::class, 'crear'])->name('clientes.crear');
         Route::post('/clientes/guardar', [ClienteController::class, 'guardar'])->name('clientes.guardar');
     });
-    
+
     Route::middleware('permission:ver clientes')->group(function () {
         Route::get('/clientes/ver', [ClienteController::class, 'ver'])->name('clientes.ver');
     });
-    
+
     Route::middleware('permission:editar clientes')->group(function () {
         Route::get('/clientes/editar/{dni}', [ClienteController::class, 'editar'])->name('clientes.editar');
         Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
     });
-    
+
     Route::middleware('permission:eliminar clientes')->group(function () {
         Route::delete('/clientes/eliminar/{dni}', [ClienteController::class, 'eliminar'])->name('clientes.eliminar');
     });
@@ -71,34 +70,28 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:ver envios')->group(function () {
         Route::get('/envios', [EnvioController::class, 'index'])->name('envios.index');
     });
-    
+
     Route::middleware('permission:crear envios')->group(function () {
         Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
         Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
     });
-    
+
     Route::middleware('permission:editar envios')->group(function () {
         Route::get('/envios/{envio}/edit', [EnvioController::class, 'edit'])->name('envios.edit');
         Route::put('/envios/{envio}', [EnvioController::class, 'update'])->name('envios.update');
     });
-    
+
     Route::middleware('permission:eliminar envios')->group(function () {
         Route::delete('/envios/{envio}', [EnvioController::class, 'destroy'])->name('envios.destroy');
     });
-    
+
     // Ruta para cargar estados por país (utilizada en formularios de envío)
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
-<<<<<<< HEAD
-});
-=======
 
-    
-    Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');
-
-// Actualización de estado (solo admin)
-Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])
-     ->name('envios.actualizar-estado')->middleware('auth');
+    // Actualización de estado (solo admin)
+    Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])
+        ->name('envios.actualizar-estado')->middleware('auth');
 });
 
+// Seguimiento sin autenticación
 Route::get('/seguimiento', [EnvioController::class, 'seguimiento'])->name('seguimiento');
->>>>>>> 453f61652c19cfa3c9412ed96e5e88c04dc5085d
