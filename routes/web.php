@@ -113,6 +113,26 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:eliminar envios')->group(function () {
         Route::delete('/paquetes/{paquete}', [PaqueteController::class, 'destroy'])->name('paquetes.destroy');
     });
+
+    // Gestión de paquetes - Con permisos específicos
+Route::middleware('permission:ver paquetes')->group(function () {
+    Route::get('/paquetes', [PaqueteController::class, 'index'])->name('paquetes.index');
+    Route::get('/paquetes/{paquete}', [PaqueteController::class, 'show'])->name('paquetes.show');
+});
+
+Route::middleware('permission:crear paquetes')->group(function () {
+    Route::get('/paquetes/create', [PaqueteController::class, 'create'])->name('paquetes.create');
+    Route::post('/paquetes', [PaqueteController::class, 'store'])->name('paquetes.store');
+});
+
+Route::middleware('permission:editar paquetes')->group(function () {
+    Route::get('/paquetes/{paquete}/edit', [PaqueteController::class, 'edit'])->name('paquetes.edit');
+    Route::put('/paquetes/{paquete}', [PaqueteController::class, 'update'])->name('paquetes.update');
+});
+
+Route::middleware('permission:eliminar paquetes')->group(function () {
+    Route::delete('/paquetes/{paquete}', [PaqueteController::class, 'destroy'])->name('paquetes.destroy');
+});
 });
 
 // Ruta pública para seguimiento
