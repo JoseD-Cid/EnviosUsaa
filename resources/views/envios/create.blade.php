@@ -61,9 +61,41 @@
         background-color: #f1f3f5;
         border: 1px solid #dee2e6;
         border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
     }
     .text-danger {
         font-size: 0.875em;
+    }
+    /* Estilos para resultados de búsqueda */
+    .search-results {
+        position: absolute;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 0 0 5px 5px;
+        max-height: 200px;
+        overflow-y: auto;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .search-result-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .search-result-item:hover {
+        background-color: #f8f9fa;
+    }
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+    .selected-cliente-card {
+        background-color: #e6f7ff;
+        border: 1px solid #91d5ff;
+        border-radius: 5px;
+        padding: 10px;
+        margin-top: 10px;
     }
 </style>
 
@@ -76,16 +108,36 @@
         <div class="card-section">
             <h4><i class="bi bi-person"></i> Cliente Remitente</h4>
             <div class="mb-3">
-                <label for="cliente_dni" class="form-label">Cliente</label>
-                <select name="cliente_dni" id="cliente_dni" class="form-select" required>
+                <label for="cliente_search" class="form-label">Buscar Cliente (DNI o Nombre)</label>
+                <div class="input-group">
+                    <input type="text" id="cliente_search" class="form-control" placeholder="Ingrese DNI o nombre del cliente" autocomplete="off">
+                    <button type="button" class="btn btn-outline-secondary" id="buscar_cliente">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div id="cliente_search_results" class="search-results d-none"></div>
+                <div id="cliente_selected" class="selected-cliente-card mt-2 d-none">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Cliente seleccionado:</strong> <span id="cliente_info"></span>
+                        </div>
+                        <button type="button" class="btn-close" id="clear_cliente"></button>
+                    </div>
+                </div>
+                <input type="hidden" name="cliente_dni" id="cliente_dni" required>
+                @error('cliente_dni')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <!-- Selector original oculto como respaldo -->
+            <div class="d-none">
+                <select id="cliente_dni_select" class="form-select">
                     <option value="">Seleccione un cliente</option>
                     @foreach ($clientes as $cliente)
                         <option value="{{ $cliente->Dni }}">{{ $cliente->Dni }} - {{ $cliente->Nombres }} {{ $cliente->Apellidos }}</option>
                     @endforeach
                 </select>
-                @error('cliente_dni')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
             </div>
         </div>
 
@@ -102,16 +154,36 @@
 
             <!-- Cliente Destinatario Existente -->
             <div id="existing-cliente-destino" class="mb-3">
-                <label for="cliente_destino_dni" class="form-label">Cliente Destinatario</label>
-                <select name="cliente_destino_dni" id="cliente_destino_dni" class="form-select">
-                    <option value="">Seleccione un cliente</option>
-                    @foreach ($clientes_destino as $cliente)
-                        <option value="{{ $cliente->Dni }}">{{ $cliente->Dni }} - {{ $cliente->Nombres }} {{ $cliente->Apellidos }}</option>
-                    @endforeach
-                </select>
+                <label for="cliente_destino_search" class="form-label">Buscar Cliente Destinatario</label>
+                <div class="input-group">
+                    <input type="text" id="cliente_destino_search" class="form-control" placeholder="Ingrese DNI o nombre del destinatario" autocomplete="off">
+                    <button type="button" class="btn btn-outline-secondary" id="buscar_cliente_destino">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div id="cliente_destino_search_results" class="search-results d-none"></div>
+                <div id="cliente_destino_selected" class="selected-cliente-card mt-2 d-none">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Destinatario seleccionado:</strong> <span id="cliente_destino_info"></span>
+                        </div>
+                        <button type="button" class="btn-close" id="clear_cliente_destino"></button>
+                    </div>
+                </div>
+                <input type="hidden" name="cliente_destino_dni" id="cliente_destino_dni">
                 @error('cliente_destino_dni')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
+                
+                <!-- Selector original oculto como respaldo -->
+                <div class="d-none">
+                    <select id="cliente_destino_dni_select" class="form-select">
+                        <option value="">Seleccione un cliente</option>
+                        @foreach ($clientes_destino as $cliente)
+                            <option value="{{ $cliente->Dni }}">{{ $cliente->Dni }} - {{ $cliente->Nombres }} {{ $cliente->Apellidos }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             <!-- Crear Nuevo Cliente Destinatario -->
@@ -208,7 +280,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="fecha_envio" class="form-label">Fecha de Envío</label>
-                    <input type="date" name="fecha_envio" class="form-control" value="{{ old('fecha_envio') }}" required>
+                    <input type="date" name="fecha_envio" class="form-control" value="{{ old('fecha_envio', date('Y-m-d')) }}" required>
                     @error('fecha_envio')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -217,7 +289,8 @@
                     <label for="estatus_envio" class="form-label">Estatus</label>
                     <select name="estatus_envio" class="form-select" required>
                         <option value="pendiente" {{ old('estatus_envio') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                        <option value="en tránsito" {{ old('estatus_envio') == 'en tránsito' ? 'selected' : '' }}>En tránsito</option>
+                        <option value="en_transito" {{ old('estatus_envio') == 'en_transito' ? 'selected' : '' }}>En tránsito</option>
+                        <option value="en_aduanas" {{ old('estatus_envio') == 'en_aduanas' ? 'selected' : '' }}>En aduanas</option>
                         <option value="entregado" {{ old('estatus_envio') == 'entregado' ? 'selected' : '' }}>Entregado</option>
                     </select>
                     @error('estatus_envio')
@@ -271,6 +344,186 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // =============== CLIENTE REMITENTE SEARCH ===============
+        const clienteSearch = document.getElementById('cliente_search');
+        const clienteSearchButton = document.getElementById('buscar_cliente');
+        const clienteSearchResults = document.getElementById('cliente_search_results');
+        const clienteSelected = document.getElementById('cliente_selected');
+        const clienteInfo = document.getElementById('cliente_info');
+        const clienteDni = document.getElementById('cliente_dni');
+        const clearCliente = document.getElementById('clear_cliente');
+        const clienteDniSelect = document.getElementById('cliente_dni_select');
+        
+        // Función para buscar clientes - usando los datos existentes en el select
+        function buscarClientes() {
+            const query = clienteSearch.value.trim().toLowerCase();
+            
+            if (query.length < 2) {
+                clienteSearchResults.classList.add('d-none');
+                return;
+            }
+            
+            clienteSearchResults.innerHTML = '';
+            let encontrados = 0;
+            
+            // Usamos las opciones del select existente para filtrar
+            Array.from(clienteDniSelect.options).forEach(option => {
+                if (option.value && option.text.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'search-result-item';
+                    div.setAttribute('data-dni', option.value);
+                    div.setAttribute('data-nombre', option.text);
+                    div.innerHTML = option.text;
+                    
+                    div.addEventListener('click', function() {
+                        seleccionarCliente(this.getAttribute('data-dni'), this.getAttribute('data-nombre'));
+                    });
+                    
+                    clienteSearchResults.appendChild(div);
+                    encontrados++;
+                }
+            });
+            
+            if (encontrados === 0) {
+                clienteSearchResults.innerHTML = '<div class="search-result-item text-muted">No se encontraron resultados</div>';
+            }
+            
+            clienteSearchResults.classList.remove('d-none');
+        }
+        
+        // Función para seleccionar un cliente
+        function seleccionarCliente(dni, nombre) {
+            clienteDni.value = dni;
+            clienteInfo.textContent = nombre;
+            clienteSelected.classList.remove('d-none');
+            clienteSearch.value = '';
+            clienteSearchResults.classList.add('d-none');
+        }
+        
+        // Event listeners para cliente remitente
+        clienteSearch.addEventListener('input', function() {
+            if (this.value.trim().length >= 2) {
+                buscarClientes();
+            } else {
+                clienteSearchResults.classList.add('d-none');
+            }
+        });
+        
+        clienteSearchButton.addEventListener('click', buscarClientes);
+        
+        clearCliente.addEventListener('click', function() {
+            clienteDni.value = '';
+            clienteSelected.classList.add('d-none');
+            clienteSearch.value = '';
+        });
+        
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!clienteSearch.contains(e.target) && !clienteSearchResults.contains(e.target) && !clienteSearchButton.contains(e.target)) {
+                clienteSearchResults.classList.add('d-none');
+            }
+        });
+        
+        // Prevenir envío de formulario al presionar enter en la búsqueda
+        clienteSearch.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarClientes();
+            }
+        });
+        
+        // =============== CLIENTE DESTINO SEARCH ===============
+        const clienteDestinoSearch = document.getElementById('cliente_destino_search');
+        const clienteDestinoSearchButton = document.getElementById('buscar_cliente_destino');
+        const clienteDestinoSearchResults = document.getElementById('cliente_destino_search_results');
+        const clienteDestinoSelected = document.getElementById('cliente_destino_selected');
+        const clienteDestinoInfo = document.getElementById('cliente_destino_info');
+        const clienteDestinoDni = document.getElementById('cliente_destino_dni');
+        const clearClienteDestino = document.getElementById('clear_cliente_destino');
+        const clienteDestinoDniSelect = document.getElementById('cliente_destino_dni_select');
+        
+        // Función para buscar clientes destino
+        function buscarClientesDestino() {
+            const query = clienteDestinoSearch.value.trim().toLowerCase();
+            
+            if (query.length < 2) {
+                clienteDestinoSearchResults.classList.add('d-none');
+                return;
+            }
+            
+            clienteDestinoSearchResults.innerHTML = '';
+            let encontrados = 0;
+            
+            // Usamos las opciones del select existente para filtrar
+            Array.from(clienteDestinoDniSelect.options).forEach(option => {
+                if (option.value && option.text.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'search-result-item';
+                    div.setAttribute('data-dni', option.value);
+                    div.setAttribute('data-nombre', option.text);
+                    div.innerHTML = option.text;
+                    
+                    div.addEventListener('click', function() {
+                        seleccionarClienteDestino(this.getAttribute('data-dni'), this.getAttribute('data-nombre'));
+                    });
+                    
+                    clienteDestinoSearchResults.appendChild(div);
+                    encontrados++;
+                }
+            });
+            
+            if (encontrados === 0) {
+                clienteDestinoSearchResults.innerHTML = '<div class="search-result-item text-muted">No se encontraron resultados</div>';
+            }
+            
+            clienteDestinoSearchResults.classList.remove('d-none');
+        }
+        
+        // Función para seleccionar un cliente destino
+        function seleccionarClienteDestino(dni, nombre) {
+            clienteDestinoDni.value = dni;
+            clienteDestinoInfo.textContent = nombre;
+            clienteDestinoSelected.classList.remove('d-none');
+            clienteDestinoSearch.value = '';
+            clienteDestinoSearchResults.classList.add('d-none');
+        }
+        
+        // Event listeners para cliente destino
+        if (clienteDestinoSearch) {
+            clienteDestinoSearch.addEventListener('input', function() {
+                if (this.value.trim().length >= 2) {
+                    buscarClientesDestino();
+                } else {
+                    clienteDestinoSearchResults.classList.add('d-none');
+                }
+            });
+            
+            clienteDestinoSearchButton.addEventListener('click', buscarClientesDestino);
+            
+            clearClienteDestino.addEventListener('click', function() {
+                clienteDestinoDni.value = '';
+                clienteDestinoSelected.classList.add('d-none');
+                clienteDestinoSearch.value = '';
+            });
+            
+            // Cerrar resultados al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!clienteDestinoSearch.contains(e.target) && !clienteDestinoSearchResults.contains(e.target) && !clienteDestinoSearchButton.contains(e.target)) {
+                    clienteDestinoSearchResults.classList.add('d-none');
+                }
+            });
+            
+            // Prevenir envío de formulario al presionar enter en la búsqueda
+            clienteDestinoSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    buscarClientesDestino();
+                }
+            });
+        }
+    });
+
     // Toggle between existing and new destination client
     document.getElementById('cliente_destino_option').addEventListener('change', function() {
         const existingSection = document.getElementById('existing-cliente-destino');
@@ -284,7 +537,6 @@
             existingSection.style.display = 'block';
             newSection.style.display = 'none';
             clienteDestinoDni.setAttribute('required', 'required');
-            clienteDestinoDni.disabled = false; // Enable the field
             nuevoDestinoDni.removeAttribute('required');
             nuevoDestinoNombres.removeAttribute('required');
             nuevoDestinoApellidos.removeAttribute('required');
@@ -292,8 +544,7 @@
             existingSection.style.display = 'none';
             newSection.style.display = 'block';
             clienteDestinoDni.removeAttribute('required');
-            clienteDestinoDni.value = ''; // Clear the value
-            clienteDestinoDni.disabled = true; // Disable the field to prevent submission
+            clienteDestinoDni.value = '';
             nuevoDestinoDni.setAttribute('required', 'required');
             nuevoDestinoNombres.setAttribute('required', 'required');
             nuevoDestinoApellidos.setAttribute('required', 'required');

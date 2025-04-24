@@ -114,4 +114,24 @@ class ClienteController extends Controller
         $cliente->update(['IsDelete' => 1]);
         return redirect()->route('clientes.ver')->with('success', 'Cliente eliminado.');
     }
+    public function buscar(Request $request): JsonResponse
+{
+    $query = $request->input('q');
+    
+    if (empty($query) || strlen($query) < 2) {
+        return response()->json([]);
+    }
+    
+    $clientes = Cliente::where('IsDelete', 0)
+        ->where(function($q) use ($query) {
+            $q->where('Dni', 'like', "%{$query}%")
+              ->orWhere('Nombres', 'like', "%{$query}%")
+              ->orWhere('Apellidos', 'like', "%{$query}%");
+        })
+        ->select('Dni', 'Nombres', 'Apellidos')
+        ->limit(10)
+        ->get();
+        
+    return response()->json($clientes);
+}
 }

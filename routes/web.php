@@ -41,6 +41,12 @@ require __DIR__.'/auth.php';
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
 
+    // Agregar esta ruta en routes/web.php dentro del grupo middleware('auth')
+
+Route::get('/api/clientes/buscar', [ClienteController::class, 'buscar'])->name('clientes.buscar');
+Route::get('/api/clientes-destino/buscar', [EnvioController::class, 'buscarClientesDestino'])->name('clientes.destino.buscar');
+
+
     // Perfil de usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
