@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('content')
-        {{-- Navbar with deeper blue color --}}
+        {{-- Navbar con color azul más profundo --}}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" style="background-color:rgb(2, 33, 92) !important;">
             <div class="container-fluid px-4">
                 <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
@@ -54,7 +54,7 @@
             </div>
         </nav>
 
-        {{-- Contenido del dashboard (unchanged) --}}
+        {{-- Contenido del dashboard --}}
         <div class="py-5 bg-light min-vh-100">
             <div class="container">
                 <div class="text-center mb-5">
@@ -114,6 +114,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Tarjeta para Gestión de Paquetes -->
+                    <div class="col-md-5 col-lg-4 mb-4">
+                        <div class="card shadow h-100 border-0 transform-hover">
+                            <div class="card-body text-center">
+                                <i class="bi bi-box fs-1 text-info mb-3"></i>
+                                <h5 class="card-title text-info">Gestión de Paquetes</h5>
+                                <p class="card-text text-muted">Administre los tipos de paquetes disponibles para envíos.</p>
+                                <a href="{{ route('paquetes.index') }}" class="btn btn-outline-info w-100">Gestionar Paquetes</a>
+                            </div>
+                        </div>
+                    </div>
                     @endcan
 
                     @hasrole('admin')
@@ -132,6 +144,7 @@
             </div>
         </div>
 
+        {{-- Estilos adicionales --}}
         <style>
             .navbar-dark .nav-link {
                 transition: color 0.3s ease;
@@ -146,7 +159,12 @@
                 transform: translateY(-5px);
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
             }
-            .btn-outline-success:hover, .btn-outline-primary:hover, .btn-outline-warning:hover, .btn-outline-dark:hover, .btn-outline-danger:hover {
+            .btn-outline-success:hover, 
+            .btn-outline-primary:hover, 
+            .btn-outline-warning:hover, 
+            .btn-outline-dark:hover, 
+            .btn-outline-danger:hover,
+            .btn-outline-info:hover {
                 color: #fff !important;
             }
         </style>

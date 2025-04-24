@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('ciudad_destino');
             $table->string('direccion_destino');
         
-            $table->enum('estatus_envio', ['pendiente', 'en tránsito', 'entregado'])->default('pendiente');
+            $table->enum('estatus_envio', ['pendiente', 'en_transito','en_aduanas', 'entregado'])->default('pendiente');
         
             $table->timestamps();
         });

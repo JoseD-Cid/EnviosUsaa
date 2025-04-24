@@ -9,6 +9,7 @@ use App\Http\Controllers\EstadoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PaqueteController;
 
 // Rutas para roles y permisos - Solo accesibles para administradores
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -93,6 +94,25 @@ Route::middleware('auth')->group(function () {
 
     // Actualización de estado (solo admin o con permiso)
     Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');
+
+    Route::middleware('permission:ver envios')->group(function () {
+        Route::get('/paquetes', [PaqueteController::class, 'index'])->name('paquetes.index');
+        Route::get('/paquetes/{paquete}', [PaqueteController::class, 'show'])->name('paquetes.show');
+    });
+    
+    Route::middleware('permission:crear envios')->group(function () {
+        Route::get('/paquetes/create', [PaqueteController::class, 'create'])->name('paquetes.create');
+        Route::post('/paquetes', [PaqueteController::class, 'store'])->name('paquetes.store');
+    });
+    
+    Route::middleware('permission:editar envios')->group(function () {
+        Route::get('/paquetes/{paquete}/edit', [PaqueteController::class, 'edit'])->name('paquetes.edit');
+        Route::put('/paquetes/{paquete}', [PaqueteController::class, 'update'])->name('paquetes.update');
+    });
+    
+    Route::middleware('permission:eliminar envios')->group(function () {
+        Route::delete('/paquetes/{paquete}', [PaqueteController::class, 'destroy'])->name('paquetes.destroy');
+    });
 });
 
 // Ruta pública para seguimiento

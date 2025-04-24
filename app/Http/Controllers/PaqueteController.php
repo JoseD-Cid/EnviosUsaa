@@ -2,64 +2,94 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Paquete;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class PaqueteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar listado de paquetes
      */
-    public function index()
+    public function index(): View
     {
-        //
+        $paquetes = Paquete::all();
+        return view('paquetes.index', compact('paquetes'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario de creación
      */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('paquetes.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacenar un nuevo paquete
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        $request->validate([
+            'NombrePaquete' => 'required|string|max:100',
+            'dimension' => 'required|string|max:50',
+            'precio' => 'required|numeric|min:0',
+        ]);
+
+        Paquete::create($request->all());
+
+        return redirect()->route('paquetes.index')
+            ->with('success', 'Paquete creado exitosamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar un paquete específico
      */
-    public function show(string $id)
+    public function show(Paquete $paquete): View
     {
-        //
+        return view('paquetes.show', compact('paquete'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar formulario de edición
      */
-    public function edit(string $id)
+    public function edit(Paquete $paquete): View
     {
-        //
+        return view('paquetes.edit', compact('paquete'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar un paquete existente
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Paquete $paquete): RedirectResponse
     {
-        //
+        $request->validate([
+            'NombrePaquete' => 'required|string|max:100',
+            'dimension' => 'required|string|max:50',
+            'precio' => 'required|numeric|min:0',
+        ]);
+
+        $paquete->update($request->all());
+
+        return redirect()->route('paquetes.index')
+            ->with('success', 'Paquete actualizado exitosamente.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar un paquete
      */
-    public function destroy(string $id)
+    public function destroy(Paquete $paquete): RedirectResponse
     {
-        //
+        // Verificar si el paquete está en uso en algún envío
+        if ($paquete->envios()->count() > 0) {
+            return redirect()->route('paquetes.index')
+                ->with('error', 'No se puede eliminar el paquete porque está asociado a uno o más envíos.');
+        }
+
+        $paquete->delete();
+
+        return redirect()->route('paquetes.index')
+            ->with('success', 'Paquete eliminado exitosamente.');
     }
 }
