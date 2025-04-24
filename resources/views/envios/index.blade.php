@@ -47,15 +47,18 @@
                 </td>
 
                 <td>
-                    @foreach($envio->paquetes as $paquete)
+                    @forelse($envio->paquetes as $paquete)
                         <div class="mb-2">
-                            <span class="badge bg-secondary">{{ $paquete->descripcion }}</span>
+                            <span class="badge bg-secondary">{{ $paquete->NombrePaquete }}</span>
                             <div class="small">
-                                Peso: {{ $paquete->peso }}g<br>
-                                Valor: ${{ number_format($paquete->valor_declarado, 2) }}
+                                <strong>Descripción:</strong> {{ $paquete->pivot->descripcion }}<br>
+                                <strong>Dimensiones:</strong> {{ $paquete->dimension }}<br>
+                                <strong>Precio histórico:</strong> ${{ number_format($paquete->pivot->precio, 2) }}
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <span class="text-muted">Sin paquetes</span>
+                    @endforelse
                 </td>
 
                 <td>

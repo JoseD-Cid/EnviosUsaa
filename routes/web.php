@@ -7,6 +7,7 @@ use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\EstadoController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
 use App\Models\Estado;
@@ -21,6 +22,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'createRole'])->name('roles.create');
     Route::post('/roles', [RoleController::class, 'storeRole'])->name('roles.store');
     Route::delete('/roles/{id}', [RoleController::class, 'deleteRole'])->name('roles.delete');
+    
+    // Rutas de registro de usuarios para administradores
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
 Route::get('/', function () {

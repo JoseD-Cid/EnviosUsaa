@@ -6,15 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Paquete extends Model
 {
+    protected $primaryKey = 'PaqueteId';
+    
     protected $fillable = [
-        'envio_id',
-        'descripcion',
-        'peso',
-        'valor_declarado',
+        'NombrePaquete',
+        'dimension',
+        'precio',
     ];
-
-    public function envio()
+    
+    // Actualizamos a relación muchos a muchos
+    public function envios()
     {
-        return $this->belongsTo(Envio::class);
+        return $this->belongsToMany(Envio::class, 'envio_paquete', 'paquete_id', 'envio_id')
+                    ->withPivot('descripcion','precio')
+                    ->withTimestamps();
     }
 }

@@ -19,28 +19,28 @@ class Envio extends Model
 
     public function paquetes()
     {
-        return $this->hasMany(Paquete::class);
+        return $this->belongsToMany(Paquete::class, 'envio_paquete', 'envio_id', 'paquete_id')
+                    ->withPivot('descripcion','precio')
+                    ->withTimestamps();
     }
 
     public function cliente()
-{
-    return $this->belongsTo(Cliente::class, 'cliente_dni', 'Dni');
-}
+    {
+        return $this->belongsTo(Cliente::class, 'cliente_dni', 'Dni');
+    }
 
-public function destino_pais()
-{
-    return $this->belongsTo(Pais::class, 'destino_pais_id', 'CodPais');
-}
-public function destino_estado()
-{
-    return $this->belongsTo(Estado::class, 'destino_estado_id', 'CodEstado');
-}
+    public function destino_pais()
+    {
+        return $this->belongsTo(Pais::class, 'destino_pais_id', 'CodPais');
+    }
+    
+    public function destino_estado()
+    {
+        return $this->belongsTo(Estado::class, 'destino_estado_id', 'CodEstado');
+    }
 
-public function trackingHistory()
-{
-    return $this->hasMany(TrackingHistory::class, 'envio_id')->orderBy('created_at', 'desc');
+    public function trackingHistory()
+    {
+        return $this->hasMany(TrackingHistory::class, 'envio_id')->orderBy('created_at', 'desc');
+    }
 }
-
-
-}
-

@@ -28,7 +28,6 @@
             @enderror
         </div>
 
-      
         <div class="mb-3">
             <label for="destino_pais_id">País</label>
             <select name="destino_pais_id" id="destino_pais_id" class="form-control" required>
@@ -84,9 +83,33 @@
         <h4>Paquetes</h4>
         <div id="paquetes">
             <div class="paquete mb-3 border p-3 rounded">
-                <input type="text" name="paquetes[0][descripcion]" placeholder="Descripción" class="form-control mb-2" value="{{ old('paquetes.0.descripcion') }}" required>
-                <input type="number" name="paquetes[0][peso]" placeholder="Peso (g)" class="form-control mb-2" value="{{ old('paquetes.0.peso') }}" required>
-                <input type="number" name="paquetes[0][valor_declarado]" placeholder="Valor Declarado" class="form-control" value="{{ old('paquetes.0.valor_declarado') }}" required>
+                <div class="mb-3">
+                    <label for="paquete_id">Seleccione un paquete</label>
+                    <select name="paquetes[0][paquete_id]" class="form-control paquete-select" required>
+                        <option value="">Seleccione un paquete</option>
+                        @foreach($paquetes as $paquete)
+                            <option value="{{ $paquete->PaqueteId }}" 
+                                    data-dimension="{{ $paquete->dimension }}" 
+                                    data-precio="{{ $paquete->precio }}">
+                                {{ $paquete->NombrePaquete }} ({{ $paquete->dimension }}) - ${{ $paquete->precio }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Dimensiones</label>
+                        <input type="text" class="form-control dimension-display" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Precio</label>
+                        <input type="text" class="form-control precio-display" readonly>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <label for="descripcion">Descripción del contenido</label>
+                    <textarea name="paquetes[0][descripcion]" class="form-control" required></textarea>
+                </div>
             </div>
         </div>
 
@@ -125,17 +148,81 @@
         }
     });
 
+    // Función para mostrar dimensiones y precio cuando se selecciona un paquete
+    function actualizarInfoPaquete(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const row = selectElement.closest('.paquete');
+        
+        if (selectedOption.value) {
+            const dimension = selectedOption.getAttribute('data-dimension');
+            const precio = selectedOption.getAttribute('data-precio');
+            
+            row.querySelector('.dimension-display').value = dimension;
+            row.querySelector('.precio-display').value = '$' + precio;
+        } else {
+            row.querySelector('.dimension-display').value = '';
+            row.querySelector('.precio-display').value = '';
+        }
+    }
+
+    // Agregar event listeners a los selects de paquetes
+    document.querySelectorAll('.paquete-select').forEach(select => {
+        select.addEventListener('change', function() {
+            actualizarInfoPaquete(this);
+        });
+    });
+
     let contador = 1;
     function agregarPaquete() {
         const container = document.getElementById('paquetes');
         const nuevo = document.createElement('div');
         nuevo.classList.add('paquete', 'mb-3', 'border', 'p-3', 'rounded');
+        
         nuevo.innerHTML = `
-            <input type="text" name="paquetes[${contador}][descripcion]" placeholder="Descripción" class="form-control mb-2" required>
-            <input type="number" name="paquetes[${contador}][peso]" placeholder="Peso (g)" class="form-control mb-2" required>
-            <input type="number" name="paquetes[${contador}][valor_declarado]" placeholder="Valor Declarado" class="form-control" required>
+            <div class="mb-3">
+                <label for="paquete_id">Seleccione un paquete</label>
+                <select name="paquetes[${contador}][paquete_id]" class="form-control paquete-select" required>
+                    <option value="">Seleccione un paquete</option>
+                    @foreach($paquetes as $paquete)
+                        <option value="{{ $paquete->PaqueteId }}" 
+                                data-dimension="{{ $paquete->dimension }}" 
+                                data-precio="{{ $paquete->precio }}">
+                            {{ $paquete->NombrePaquete }} ({{ $paquete->dimension }}) - ${{ $paquete->precio }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Dimensiones</label>
+                    <input type="text" class="form-control dimension-display" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label>Precio</label>
+                    <input type="text" class="form-control precio-display" readonly>
+                </div>
+            </div>
+            <div class="mt-2">
+                <label for="descripcion">Descripción del contenido</label>
+                <textarea name="paquetes[${contador}][descripcion]" class="form-control" required></textarea>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-2 eliminar-paquete">Eliminar</button>
         `;
+        
         container.appendChild(nuevo);
+        
+        // Agregar event listener al nuevo select
+        const nuevoSelect = nuevo.querySelector('.paquete-select');
+        nuevoSelect.addEventListener('change', function() {
+            actualizarInfoPaquete(this);
+        });
+        
+        // Agregar event listener al botón eliminar
+        const eliminarBtn = nuevo.querySelector('.eliminar-paquete');
+        eliminarBtn.addEventListener('click', function() {
+            container.removeChild(nuevo);
+        });
+        
         contador++;
     }
 </script>
