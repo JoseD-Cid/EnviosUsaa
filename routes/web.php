@@ -7,9 +7,8 @@ use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\EstadoController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
-
-use App\Models\Estado;
 
 // Rutas para roles y permisos - Solo accesibles para administradores
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -21,6 +20,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'createRole'])->name('roles.create');
     Route::post('/roles', [RoleController::class, 'storeRole'])->name('roles.store');
     Route::delete('/roles/{id}', [RoleController::class, 'deleteRole'])->name('roles.delete');
+
+    // Rutas de registro de usuarios para administradores
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
 Route::get('/', function () {
@@ -36,27 +39,27 @@ require __DIR__.'/auth.php';
 
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
-    
+
     // Perfil de usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Clientes - Protegidos con permisos específicos
     Route::middleware('permission:crear clientes')->group(function () {
         Route::get('/clientes/crear', [ClienteController::class, 'crear'])->name('clientes.crear');
         Route::post('/clientes/guardar', [ClienteController::class, 'guardar'])->name('clientes.guardar');
     });
-    
+
     Route::middleware('permission:ver clientes')->group(function () {
         Route::get('/clientes/ver', [ClienteController::class, 'ver'])->name('clientes.ver');
     });
-    
+
     Route::middleware('permission:editar clientes')->group(function () {
         Route::get('/clientes/editar/{dni}', [ClienteController::class, 'editar'])->name('clientes.editar');
         Route::put('/clientes/actualizar/{dni}', [ClienteController::class, 'actualizar'])->name('clientes.actualizar');
     });
-    
+
     Route::middleware('permission:eliminar clientes')->group(function () {
         Route::delete('/clientes/eliminar/{dni}', [ClienteController::class, 'eliminar'])->name('clientes.eliminar');
     });
@@ -70,25 +73,25 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:ver envios')->group(function () {
         Route::get('/envios', [EnvioController::class, 'index'])->name('envios.index');
     });
-    
+
     Route::middleware('permission:crear envios')->group(function () {
         Route::get('/envios/crear', [EnvioController::class, 'create'])->name('envios.create');
         Route::post('/envios/guardar', [EnvioController::class, 'store'])->name('envios.store');
     });
-    
+
     Route::middleware('permission:editar envios')->group(function () {
         Route::get('/envios/{envio}/edit', [EnvioController::class, 'edit'])->name('envios.edit');
         Route::put('/envios/{envio}', [EnvioController::class, 'update'])->name('envios.update');
     });
-    
+
     Route::middleware('permission:eliminar envios')->group(function () {
         Route::delete('/envios/{envio}', [EnvioController::class, 'destroy'])->name('envios.destroy');
     });
-    
+
     // Ruta para cargar estados por país (utilizada en formularios de envío)
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
 
-    // Actualización de estado (solo admin)
+    // Actualización de estado (solo admin o con permiso)
     Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');
 });
 

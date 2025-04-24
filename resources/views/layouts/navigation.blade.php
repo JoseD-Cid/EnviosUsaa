@@ -32,6 +32,9 @@
                     <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
                         {{ __('Roles y Permisos') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
+                        {{ __('Registrar Usuario') }}
+                    </x-nav-link>
                     @endhasrole
                 </div>
             </div>
@@ -61,6 +64,9 @@
                         @hasrole('admin')
                         <x-dropdown-link :href="route('roles.index')">
                             {{ __('Gestionar Roles') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('register')">
+                            {{ __('Registrar Usuario') }}
                         </x-dropdown-link>
                         @endhasrole
 
@@ -113,6 +119,9 @@
             <x-responsive-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
                 {{ __('Roles y Permisos') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('register')" :active="request()->routeIs('register')">
+                {{ __('Registrar Usuario') }}
+            </x-responsive-nav-link>
             @endhasrole
         </div>
 
@@ -134,6 +143,9 @@
                 @hasrole('admin')
                 <x-responsive-nav-link :href="route('roles.index')">
                     {{ __('Gestionar Roles') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('register')">
+                    {{ __('Registrar Usuario') }}
                 </x-responsive-nav-link>
                 @endhasrole
 

@@ -19,6 +19,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <a href="{{ route('roles.create') }}" class="btn btn-primary">Crear Nuevo Rol</a>
+            <a href="{{ route('register') }}" class="btn btn-success">Registrar Nuevo Usuario</a>
             <a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a>
         </div>
     </div>
