@@ -104,11 +104,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link text-white" href="/">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="/login">Iniciar sesión</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#servicios">Servicios</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#seguimiento">Seguimiento</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#contacto">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#cotizacion">Cotización</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="/login">Iniciar sesión</a></li>
                 </ul>
             </div>
         </div>
@@ -117,8 +117,8 @@
     <main>
         <section class="hero text-center py-5 fade-in">
             <div class="container">
-                <h2 class="display-5 fw-bold">Envíos rápidos y seguros</h2>
-                <p class="lead">Soluciones logísticas desde USA a Centroamérica</p>
+                <h2 class="display-5 fw-bold" style="user-select: none; cursor: default;">Envíos rápidos y seguros</h2>
+                <p class="lead" style="user-select: none; cursor: default;">Soluciones logísticas desde USA a Centroamérica</p>
                 <div class="banderas d-flex justify-content-center mt-4">
                     <img src="{{ asset('img/Usa.png') }}" alt="México">
                     <img src="{{ asset('img/mexico.png') }}" alt="México">
@@ -130,27 +130,30 @@
         </section>
 
         <section id="servicios" class="container py-5">
-            <h3 class="text-center mb-4 fw-bold text-dark bounce-in">Nuestros Servicios</h3>
+        <h3 class="text-center mb-4 fw-bold text-dark bounce-in"
+        style="user-select: none; cursor: default;">Nuestros Servicios
+        </h3>
+
             <div class="row">
                 <div class="col-md-4 text-center mb-4">
                     <div class="service-card p-4 rounded shadow-sm bg-white">
                         <i class="bi bi-globe-americas fs-1 text-primary mb-3"></i>
-                        <h5 class="text-primary">Transporte Internacional</h5>
-                        <p class="text-muted">Rápido y eficiente desde USA hacia México, Guatemala, El Salvador y Honduras.</p>
+                        <h5 class="text-primary" style="user-select: none; cursor: default;">Transporte Internacional</h5>
+                        <p class="text-muted" style="user-select: none; cursor: default;">Rápido y eficiente desde USA hacia México, Guatemala, El Salvador y Honduras.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center mb-4">
                     <div class="service-card p-4 rounded shadow-sm bg-white">
                         <i class="bi bi-box-seam fs-1 text-primary mb-3"></i>
-                        <h5 class="text-primary">Empaque Seguro</h5>
-                        <p class="text-muted">Protección garantizada para tus paquetes delicados o voluminosos.</p>
+                        <h5 class="text-primary" style="user-select: none; cursor: default;">Empaque Seguro</h5>
+                        <p class="text-muted" style="user-select: none; cursor: default;">Protección garantizada para tus paquetes delicados o voluminosos.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center mb-4">
                     <div class="service-card p-4 rounded shadow-sm bg-white">
                         <i class="bi bi-truck fs-1 text-primary mb-3"></i>
-                        <h5 class="text-primary">Rastreo en Tiempo Real</h5>
-                        <p class="text-muted">Sigue tu envío desde el origen hasta su destino final.</p>
+                        <h5 class="text-primary" style="user-select: none; cursor: default;">Rastreo en Tiempo Real</h5>
+                        <p class="text-muted" style="user-select: none; cursor: default;">Sigue tu envío desde el origen hasta su destino final.</p>
                     </div>
                 </div>
             </div>
@@ -179,11 +182,70 @@
                 </div>
             </div>
         </section>
+        
+        {{-- Seccion de cotizaciones --}}
+
+        <section id="cotizacion" class="py-5 bg-light">
+  <div class="container">
+    <h3 class="text-center fw-bold mb-4 bounce-in" style="user-select: none; cursor: default;">
+      Cotización de Envíos
+    </h3>
+    <p class="text-center text-muted mb-5" style="user-select: none; cursor: default;">
+      Seleccioná el tamaño de tu caja para ver el precio estimado. Cotizamos por volumen, no por peso.
+    </p>
+
+    <div class="row g-4 justify-content-center">
+      <!-- Tarjeta 1 -->
+      <div class="col-md-3">
+        <div class="card text-center p-4 shadow-sm h-100 service-card" onclick="cotizar('28x28x34', '$270')">
+          <i class="bi bi-box fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">28 x 28 x 34</h5>
+          <p class="text-muted" style="user-select: none; cursor: default;">Caja Grande</p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2 -->
+      <div class="col-md-3">
+        <div class="card text-center p-4 shadow-sm h-100 service-card" onclick="cotizar('24x24x24', '$180')">
+          <i class="bi bi-box-seam fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">24 x 24 x 24</h5>
+          <p class="text-muted" style="user-select: none; cursor: default;">Caja Mediana</p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3 -->
+      <div class="col-md-3">
+        <div class="card text-center p-4 shadow-sm h-100 service-card" onclick="cotizar('20x20x20', '$140')">
+          <i class="bi bi-box-fill fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">20 x 20 x 20</h5>
+          <p class="text-muted" style="user-select: none; cursor: default;">Caja Compacta</p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 4 -->
+      <div class="col-md-3">
+        <div class="card text-center p-4 shadow-sm h-100 service-card" onclick="cotizar('18x18x18', '$110')">
+          <i class="bi bi-box2-heart fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">18 x 18 x 18</h5>
+          <p class="text-muted" style="user-select: none; cursor: default;">Caja Pequeña</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="text-center mt-5">
+      <h5 class="fw-bold" style="user-select: none; cursor: default;">Resultado:</h5>
+      <div id="resultadoCotizacion" class="text-primary fs-4" style="user-select: none; cursor: default;">Seleccioná una caja para cotizar</div>
+      <p class="text-muted small mt-2" style="user-select: none; cursor: default;">Las medidas deben ser exactas. Si se exceden, pueden aplicarse recargos.</p>
+    </div>
+  </div>
+</section>
+
 
         <section id="contacto" class="container py-5">
-            <h3 class="text-center mb-2 fw-bold text-dark bounce-in">Contáctanos</h3>
-            <p class="text-center text-muted">Escanea el código QR para contactarnos vía WhatsApp.</p>
-            <div class="envios d-flex justify-content-center mt-2">
+            <h3 class="text-center mb-2 fw-bold text-dark bounce-in" style="user-select: none; cursor: default;">Contáctanos</h3>
+            <p class="text-center text-muted" style="user-select: none; cursor: default;">Escanea el código QR para contactarnos vía WhatsApp.</p>
+            <div class="envios d-flex justify-content-center mt-2" style="user-select: none; cursor: default;">
                 <img src="{{ asset('img/DallasExpressEnvios.png') }}" alt="WhatsApp QR Code">
             </div>
         </section>
@@ -195,10 +257,19 @@
                 <img src="{{ asset('img/LOGODALLAS.png') }}" alt="Dallas Express Envios Logo" style="height: 30px; margin-right: 10px;">
                 <span>Dallas Express Envios</span>
             </div>
-            <p class="mb-0">© 2025 Dallas Express Envios. Todos los derechos reservados.</p>
+            <p class="mb-0" style="user-select: none; cursor: default;">© 2025 Dallas Express Envios. Todos los derechos reservados.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    function cotizar(medidas, precio) {
+        const resultado = document.getElementById('resultadoCotizacion');
+        resultado.innerHTML = `<strong>${medidas}</strong> → Precio estimado: <span class="text-success">${precio}</span>`;
+    }
+    </script>
+
+
 </body>
 </html>
