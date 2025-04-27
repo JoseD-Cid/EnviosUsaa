@@ -95,8 +95,16 @@ Route::get('/api/clientes-destino/buscar', [EnvioController::class, 'buscarClien
         Route::delete('/envios/{envio}', [EnvioController::class, 'destroy'])->name('envios.destroy');
     });
 
+    //eliminar envios
+    Route::delete('/envios/{envio}', [EnvioController::class, 'destroy'])->name('envios.destroy');
+    //actualizar envios
+    Route::get('/envios/{envio}/edit', [EnvioController::class, 'edit'])->name('envios.edit')->middleware('auth', 'permission:editar envios');
+    Route::put('/envios/{envio}', [EnvioController::class, 'update'])->name('envios.update')->middleware('auth', 'permission:editar envios');
+
     // Ruta para cargar estados por país (utilizada en formularios de envío)
     Route::get('/estados-por-pais/{id}', [EnvioController::class, 'obtenerEstadosPorPais']);
+    //actualizar
+    Route::put('/envios/{envio}', [EnvioController::class, 'update'])->name('envios.update');
 
     // Actualización de estado (solo admin o con permiso)
     Route::post('/envios/{envio}/actualizar-estado', [EnvioController::class, 'actualizarEstado'])->name('envios.actualizar-estado');

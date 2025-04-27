@@ -75,15 +75,17 @@
         font-size: 0.9rem;
         text-align: center;
     }
-    .btn-primary {
+    .btn-primary, .btn-success {
         border-radius: 25px;
         padding: 10px 20px;
         font-weight: 600;
-        background: linear-gradient(90deg, #003087 0%, #0052cc 100%);
         border: none;
         transition: all 0.3s ease;
         font-size: 0.95rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #003087 0%, #0052cc 100%);
     }
     .btn-primary:hover {
         background: linear-gradient(90deg, #00205b 0%, #003087 100%);
@@ -95,6 +97,14 @@
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
+    }
+    .btn-success {
+        background: linear-gradient(90deg, #28a745 0%, #34c759 100%);
+    }
+    .btn-success:hover {
+        background: linear-gradient(90deg, #218838 0%, #28a745 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     .dropdown-toggle {
         border-radius: 25px;
@@ -196,11 +206,73 @@
     .is-invalid ~ .invalid-feedback {
         display: block;
     }
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s ease;
+    }
+    .form-select:focus {
+        border-color: #003087;
+        box-shadow: 0 0 5px rgba(0, 48, 135, 0.3);
+    }
     .btn-secondary {
         border-radius: 20px;
         padding: 8px 20px;
         font-weight: 500;
         transition: all 0.3s ease;
+    }
+    .summary-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 5px solid #003087;
+    }
+    .summary-section h5 {
+        color: #003087;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    .summary-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .summary-card h6 {
+        color: #003087;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1rem;
+    }
+    .summary-card p {
+        margin: 5px 0;
+        font-size: 0.9rem;
+        color: #333;
+    }
+    .summary-card .metric {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #003087;
+    }
+    .summary-list {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    .summary-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    .summary-list::-webkit-scrollbar-thumb {
+        background: #003087;
+        border-radius: 3px;
     }
     @media (max-width: 768px) {
         .shipment-card h2 {
@@ -210,9 +282,18 @@
             font-size: 0.85rem;
             padding: 10px;
         }
-        .btn-primary, .dropdown-toggle {
+        .btn-primary, .dropdown-toggle, .btn-success {
             padding: 8px 16px;
             font-size: 0.9rem;
+        }
+        .summary-card h6 {
+            font-size: 0.95rem;
+        }
+        .summary-card p {
+            font-size: 0.85rem;
+        }
+        .summary-card .metric {
+            font-size: 1rem;
         }
     }
 </style>
@@ -227,6 +308,76 @@
                 {{ session('success') }}
             </div>
         @endif
+
+        <!-- Filter and Export Section -->
+        <div class="d-flex justify-content-between mb-4 align-items-center">
+            <div>
+                <label class="form-label">Filtrar por período:</label>
+                <form method="GET" action="{{ route('envios.index') }}" style="display: inline;">
+                    <select name="filter_period" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ $filterPeriod == 'all' ? 'selected' : '' }}>Todos</option>
+                        <option value="daily" {{ $filterPeriod == 'daily' ? 'selected' : '' }}>Diario</option>
+                        <option value="weekly" {{ $filterPeriod == 'weekly' ? 'selected' : '' }}>Semanal</option>
+                        <option value="biweekly" {{ $filterPeriod == 'biweekly' ? 'selected' : '' }}>Quincenal</option>
+                        <option value="monthly" {{ $filterPeriod == 'monthly' ? 'selected' : '' }}>Mensual</option>
+                    </select>
+                </form>
+            </div>
+            <div>
+                <form method="GET" action="{{ route('envios.index') }}" style="display: inline;">
+                    <input type="hidden" name="filter_period" value="{{ $filterPeriod }}">
+                    <input type="hidden" name="export" value="pdf">
+                    <button type="submit" class="btn btn-primary">Exportar a PDF</button>
+                </form>
+                <form method="GET" action="{{ route('envios.index') }}" style="display: inline;">
+                    <input type="hidden" name="filter_period" value="{{ $filterPeriod }}">
+                    <input type="hidden" name="export" value="excel">
+                    <button type="submit" class="btn btn-success">Exportar a Excel</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h5>Resumen Contable</h5>
+            <div class="row g-3">
+                <!-- Total Metrics -->
+                <div class="col-md-4 col-sm-6">
+                    <div class="summary-card">
+                        <h6>Totales</h6>
+                        <p>Total Envíos: <span class="metric">{{ $totalEnvios }}</span></p>
+                        <p>Total Paquetes: <span class="metric">{{ $totalPaquetes }}</span></p>
+                        <p>Ingresos Totales: <span class="metric">${{ number_format($totalRevenue, 2) }}</span></p>
+                    </div>
+                </div>
+                <!-- Shipment Types -->
+                <div class="col-md-4 col-sm-6">
+                    <div class="summary-card">
+                        <h6>Tipos de Envíos</h6>
+                        <div class="summary-list">
+                            @forelse($enviosByStatus as $status => $count)
+                                <p>{{ ucfirst(str_replace('_', ' ', $status)) }}: <span class="metric">{{ $count }}</span></p>
+                            @empty
+                                <p class="text-muted">No hay datos disponibles.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <!-- Shipments by Client -->
+                <div class="col-md-4 col-sm-6">
+                    <div class="summary-card">
+                        <h6>Envíos por Cliente</h6>
+                        <div class="summary-list">
+                            @forelse($enviosByClient as $client)
+                                <p>{{ $client['client_name'] }}: <span class="metric">{{ $client['count'] }}</span></p>
+                            @empty
+                                <p class="text-muted">No hay datos disponibles.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Botón para crear un nuevo envío -->
         <div class="mb-4 text-center">
@@ -324,12 +475,28 @@
                                                 </a>
                                             </li>
                                             <li>
+                                                <a class="dropdown-item" href="{{ route('envios.edit', $envio) }}">
+                                                    <i class="bi bi-edit"></i> Editar Envío
+                                                </a>
+                                            </li>
+                                            <li>
                                                 <a class="dropdown-item" href="#" onclick="generatePDF('{{ $envio->tracking_number }}', '{{ $envio->cliente ? $envio->cliente->Nombres . ' ' . $envio->cliente->Apellidos : 'Cliente no encontrado' }}', '{{ $envio->cliente ? $envio->cliente->Dni : 'N/A' }}', '{{ $envio->cliente ? $envio->cliente->PrimerTelefono ?? 'N/A' : 'N/A' }}', '{{ $envio->clienteDestino ? $envio->clienteDestino->Nombres . ' ' . $envio->clienteDestino->Apellidos : 'Destinatario no encontrado' }}', '{{ $envio->cliente_destino_dni ?? 'N/A' }}', '{{ $envio->clienteDestino ? $envio->clienteDestino->Telefono : 'N/A' }}', '{{ $envio->direccion_destino }}', '{{ $envio->ciudad_destino }}', '{{ $envio->destino_estado ? $envio->destino_estado->NomEstado : 'N/A' }}', '{{ $envio->destino_pais ? $envio->destino_pais->Nombre : 'N/A' }}', '{{ json_encode($envio->paquetes->map(fn($paquete) => ['descripcion' => $paquete->pivot->descripcion, 'dimension' => $paquete->pivot->descripcion, 'precio' => $paquete->pivot->precio])) }}', '{{ \Carbon\Carbon::parse($envio->fecha_envio)->format('d-m-Y') }}')">
                                                     <i class="bi bi-file-pdf"></i> Generar Guía PDF
                                                 </a>
                                             </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="confirmDelete({{ $envio->id }})">
+                                                    <i class="bi bi-trash"></i> Eliminar Envío
+                                                </a>
+                                            </li>
                                         </ul>
                                     </div>
+
+                                    <!-- Formulario oculto para eliminar el envío -->
+                                    <form id="deleteForm{{ $envio->id }}" action="{{ route('envios.destroy', $envio) }}" method="POST" style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -337,58 +504,58 @@
                 </table>
             </div>
         @endif
-    </div>
 
-    <!-- Modal de Actualización (Fuera del bucle) -->
-    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateStatusModalLabel">Actualizar Estado del Envío</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Modal de Actualización (Fuera del bucle) -->
+        <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateStatusModalLabel">Actualizar Estado del Envío</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="updateStatusForm" method="POST" action="">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-4">
+                                <label class="form-label">Estado Actual:</label>
+                                <select name="estado" id="estadoSelect" class="form-select" required>
+                                    <option value="" disabled>Selecciona un estado</option>
+                                    <option value="registrado">Registrado</option>
+                                    <option value="en_transito">En Tránsito</option>
+                                    <option value="en_aduanas">En Aduanas</option>
+                                    <option value="entregado">Entregado</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor, selecciona un estado.
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Ubicación Actual:</label>
+                                <input type="text"
+                                       name="ubicacion"
+                                       id="ubicacionInput"
+                                       class="form-control"
+                                       required
+                                       placeholder="Ej: Centro de distribución">
+                                <div class="invalid-feedback">
+                                    Por favor, ingresa una ubicación válida.
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Detalles (Opcional):</label>
+                                <textarea name="descripcion"
+                                          id="descripcionTextarea"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Ej: Salió del centro de distribución"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Guardar Cambios</button>
+                        </div>
+                    </form>
                 </div>
-                <form id="updateStatusForm" method="POST" action="">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-4">
-                            <label class="form-label">Estado Actual:</label>
-                            <select name="estado" id="estadoSelect" class="form-select" required>
-                                <option value="" disabled>Selecciona un estado</option>
-                                <option value="registrado">Registrado</option>
-                                <option value="en_transito">En Tránsito</option>
-                                <option value="en_aduanas">En Aduanas</option>
-                                <option value="entregado">Entregado</option>
-                            </select>
-                            <div class="invalid-feedback">
-                                Por favor, selecciona un estado.
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Ubicación Actual:</label>
-                            <input type="text"
-                                   name="ubicacion"
-                                   id="ubicacionInput"
-                                   class="form-control"
-                                   required
-                                   placeholder="Ej: Centro de distribución">
-                            <div class="invalid-feedback">
-                                Por favor, ingresa una ubicación válida.
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Detalles (Opcional):</label>
-                            <textarea name="descripcion"
-                                      id="descripcionTextarea"
-                                      class="form-control"
-                                      rows="3"
-                                      placeholder="Ej: Salió del centro de distribución"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Guardar Cambios</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -399,6 +566,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
+// Confirmación para eliminar pedido
+function confirmDelete(envioId) {
+    if (confirm('¿Estás seguro de que deseas eliminar este pedido? Esta acción no se puede deshacer.')) {
+        document.getElementById('deleteForm' + envioId).submit();
+    }
+}
+
 // Manejar la apertura del modal y cerrar el dropdown
 document.addEventListener('DOMContentLoaded', function () {
     const updateTrackingLinks = document.querySelectorAll('.update-tracking');

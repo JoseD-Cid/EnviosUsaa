@@ -26,6 +26,7 @@ class Estado extends Model
      {
          return $this->hasMany(Envio::class, 'destino_estado_id', 'CodEstado');
      }
+     
 }
 
 

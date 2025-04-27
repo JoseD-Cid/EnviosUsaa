@@ -11,14 +11,100 @@ use App\Models\ClientesDestino;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use App\Exports\EnviosReportExport;
 
 class EnvioController extends Controller
 {
-    // Muestra todos los envíos con relaciones necesarias
-    public function index()
+    // Muestra todos los envíos con relaciones necesarias y genera datos para el reporte
+    public function index(Request $request)
     {
-        $envios = Envio::with(['paquetes', 'cliente', 'clienteDestino', 'destino_pais', 'destino_estado', 'trackingHistory'])->get();
-        return view('envios.index', compact('envios'));
+        // Get filter period from request (default to 'all')
+        $filterPeriod = $request->input('filter_period', 'all');
+        $startDate = null;
+        $endDate = Carbon::now();
+
+        // Set date range based on filter
+        switch ($filterPeriod) {
+            case 'daily':
+                $startDate = Carbon::today();
+                break;
+            case 'weekly':
+                $startDate = Carbon::now()->startOfWeek();
+                break;
+            case 'biweekly':
+                $startDate = Carbon::now()->subDays(14);
+                break;
+            case 'monthly':
+                $startDate = Carbon::now()->startOfMonth();
+                break;
+            default:
+                $startDate = null; // No filter, fetch all
+        }
+
+        // Base query for shipments
+        $query = Envio::with(['paquetes', 'cliente', 'clienteDestino', 'destino_pais', 'destino_estado', 'trackingHistory']);
+
+        // Apply date filter if set
+        if ($startDate) {
+            $query->whereBetween('fecha_envio', [$startDate, $endDate]);
+        }
+
+        // Fetch filtered shipments
+        $envios = $query->get();
+        $paises = Pais::all();
+
+        // Calculate totals
+        $totalEnvios = $envios->count();
+        $totalPaquetes = $envios->sum(function ($envio) {
+            return $envio->paquetes->count();
+        });
+        $totalRevenue = $envios->sum(function ($envio) {
+            return $envio->paquetes->sum('pivot.precio');
+        });
+
+        // Group by shipment status (type)
+        $enviosByStatus = $envios->groupBy('estatus_envio')->map->count();
+
+        // Group by client (Remitente)
+        $enviosByClient = $envios->groupBy('cliente_dni')->map(function ($group) {
+            return [
+                'client_name' => $group->first()->cliente ? $group->first()->cliente->Nombres . ' ' . $group->first()->cliente->Apellidos : 'Desconocido',
+                'count' => $group->count(),
+            ];
+        });
+
+        // Handle export request
+        if ($request->has('export')) {
+            $exportType = $request->input('export');
+            $reportData = [
+                'envios' => $envios,
+                'totalEnvios' => $totalEnvios,
+                'totalPaquetes' => $totalPaquetes,
+                'totalRevenue' => $totalRevenue,
+                'enviosByStatus' => $enviosByStatus,
+                'enviosByClient' => $enviosByClient,
+                'filterPeriod' => $filterPeriod,
+            ];
+
+            if ($exportType === 'pdf') {
+                $pdf = app('PDF')->loadView('envios.report', $reportData);
+                return $pdf->download('reporte_envios_' . $filterPeriod . '_' . now()->format('Ymd') . '.pdf');
+            } elseif ($exportType === 'excel') {
+                return app('Excel')->download(new EnviosReportExport($reportData), 'reporte_envios_' . $filterPeriod . '_' . now()->format('Ymd') . '.xlsx');
+            }
+        }
+
+        return view('envios.index', compact(
+            'envios',
+            'paises',
+            'totalEnvios',
+            'totalPaquetes',
+            'totalRevenue',
+            'enviosByStatus',
+            'enviosByClient',
+            'filterPeriod'
+        ));
     }
 
     // Muestra el formulario para crear un nuevo envío
@@ -159,25 +245,97 @@ class EnvioController extends Controller
 
         return back()->with('success', 'Estado actualizado!');
     }
+
     public function buscarClientesDestino(Request $request): JsonResponse
-{
-    $query = $request->input('q');
-    
-    if (empty($query) || strlen($query) < 2) {
-        return response()->json([]);
-    }
-    
-    $clientes = ClientesDestino::where('IsDelete', 0)
-        ->where('Estatus', 1)
-        ->where(function($q) use ($query) {
-            $q->where('Dni', 'like', "%{$query}%")
-              ->orWhere('Nombres', 'like', "%{$query}%")
-              ->orWhere('Apellidos', 'like', "%{$query}%");
-        })
-        ->select('Dni', 'Nombres', 'Apellidos')
-        ->limit(10)
-        ->get();
+    {
+        $query = $request->input('q');
         
-    return response()->json($clientes);
-}
+        if (empty($query) || strlen($query) < 2) {
+            return response()->json([]);
+        }
+        
+        $clientes = ClientesDestino::where('IsDelete', 0)
+            ->where('Estatus', 1)
+            ->where(function($q) use ($query) {
+                $q->where('Dni', 'like', "%{$query}%")
+                  ->orWhere('Nombres', 'like', "%{$query}%")
+                  ->orWhere('Apellidos', 'like', "%{$query}%");
+            })
+            ->select('Dni', 'Nombres', 'Apellidos')
+            ->limit(10)
+            ->get();
+            
+        return response()->json($clientes);
+    }
+
+    // Eliminar envío
+    public function destroy(Envio $envio)
+    {
+        // Delete related tracking history records
+        $envio->trackingHistory()->delete();
+
+        // Detach related packages from the pivot table
+        $envio->paquetes()->detach();
+
+        // Delete the envio
+        $envio->delete();
+
+        return redirect()->route('envios.index')->with('success', 'Envío eliminado exitosamente.');
+    }
+
+    // Actualizar envío
+    public function edit(Envio $envio)
+    {
+        $paquetes = Paquete::all();
+        $paises = Pais::all();
+        $estados = Estado::all();
+        $clientes = Cliente::all();
+        $clientes_destino = ClientesDestino::all();
+
+        return view('envios.edit', compact('envio', 'paquetes', 'paises', 'estados', 'clientes', 'clientes_destino'));
+    }
+
+    public function update(Request $request, Envio $envio)
+    {
+        $validated = $request->validate([
+            'cliente_dni' => 'required|exists:clientes,Dni',
+            'cliente_destino_dni' => 'required|exists:clientes_destino,Dni',
+            'fecha_envio' => 'required|date',
+            'tracking_number' => 'required|string|unique:envios,tracking_number,' . $envio->id,
+            'destino_pais_id' => 'required|exists:paises,CodPais',
+            'destino_estado_id' => 'required|exists:estados,CodEstado',
+            'ciudad_destino' => 'required|string',
+            'direccion_destino' => 'required|string',
+            'estatus_envio' => 'required|in:registrado,en_transito,en_aduanas,entregado',
+            'paquetes' => 'required|array',
+            'paquetes.*' => 'exists:paquetes,PaqueteId',
+            'descriptions' => 'required|array',
+            'descriptions.*' => 'nullable|string',
+            'prices' => 'required|array',
+            'prices.*' => 'required|numeric|min:0',
+        ]);
+
+        $envio->update([
+            'cliente_dni' => $validated['cliente_dni'],
+            'cliente_destino_dni' => $validated['cliente_destino_dni'],
+            'fecha_envio' => $validated['fecha_envio'],
+            'tracking_number' => $validated['tracking_number'],
+            'destino_pais_id' => $validated['destino_pais_id'],
+            'destino_estado_id' => $validated['destino_estado_id'],
+            'ciudad_destino' => $validated['ciudad_destino'],
+            'direccion_destino' => $validated['direccion_destino'],
+            'estatus_envio' => $validated['estatus_envio'],
+        ]);
+
+        $paquetesData = [];
+        foreach ($validated['paquetes'] as $index => $paqueteId) {
+            $paquetesData[$paqueteId] = [
+                'descripcion' => $validated['descriptions'][$index],
+                'precio' => $validated['prices'][$index],
+            ];
+        }
+        $envio->paquetes()->sync($paquetesData);
+
+        return redirect()->route('envios.index')->with('success', 'Envío actualizado exitosamente.');
+    }
 }

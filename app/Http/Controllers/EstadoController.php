@@ -12,4 +12,9 @@ namespace App\Http\Controllers;
             $estados = Estado::where('CodPais', $paisId)->get();
             return response()->json($estados);
         }
+        public function getByPais($paisId)
+{
+    $estados = Estado::where('pais_id', $paisId)->get();
+    return response()->json($estados);
+}
     }
