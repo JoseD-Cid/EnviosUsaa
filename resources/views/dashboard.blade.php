@@ -1,11 +1,11 @@
 <x-app-layout>
     @section('content')
-        {{-- Navbar con color azul más profundo --}}
+        {{-- Navbar  --}}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" style="background-color:rgb(2, 33, 92) !important;">
             <div class="container-fluid px-4">
-                <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
                     <img src="{{ asset('img/LOGODALLAS.png') }}" alt="Dallas Express Envios Logo" style="height: 40px; margin-right: 10px;">
-                    Envios USA
+                    Dallas Express Envíos
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDashboard" aria-controls="navbarDashboard" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -13,8 +13,8 @@
 
                 <div class="collapse navbar-collapse" id="navbarDashboard">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active fw-semibold" href="{{ route('dashboard') }}">Dashboard</a>
+                        <li class="nav-item">   
+                            <a class="nav-link active fw-semibold" href="{{ route('dashboard') }}">Menu</a>
                         </li>
                         @can('crear clientes')
                         <li class="nav-item">
